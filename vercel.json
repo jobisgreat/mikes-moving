@@ -18,7 +18,7 @@
       ]
     },
     {
-      "source": "/(hero.mp4|hero-poster.jpg|photo-crew-v2.jpg|logo.png|favicon.svg|apple-touch-icon.png)",
+      "source": "/(hero.mp4|hero-poster.jpg|photo-crew-v3.jpg|logo.png|favicon.svg|apple-touch-icon.png)",
       "headers": [
         {
           "key": "Cache-Control",
