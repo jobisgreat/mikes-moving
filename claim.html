@@ -7,42 +7,32 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <header>
-    <div>
-      <strong>Mikes Moving LLC</strong><br>
-      <span class="muted">44 Robbins Street, Waltham, MA 02452</span>
-    </div>
-    <nav>
-      <a href="tel:5082156322">508-215-6322</a>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/images/mark.jpg" alt="Mikes Moving mark"> Mikes Moving LLC</a>
+    <nav class="nav">
       <a href="/">Estimate</a>
+      <a class="phone" href="tel:5082156322">508-215-6322</a>
     </nav>
   </header>
-  <main>
+  <main class="section">
     <h1>File a claim</h1>
     <p>File a claim for loss or damage with Mikes Moving LLC. Mike handles the claim. Phone <a href="tel:5082156322">508-215-6322</a>. Email <a href="mailto:claims@mikesmoving.com">claims@mikesmoving.com</a>. Billing disputes and crew complaints go to the same email. This form is for loss and damage.</p>
-
-    <form class="card" id="claim">
+    <form class="form-card" id="claim" style="max-width:640px;background:#12324a">
       <label for="name">Name</label>
-      <input id="name" name="name" required>
+      <input id="name" required>
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" required>
+      <input id="email" type="email" required>
       <label for="phone">Phone</label>
-      <input id="phone" name="phone" type="tel" required>
+      <input id="phone" type="tel" required>
       <label for="move-date">Move date</label>
-      <input id="move-date" name="move-date" type="date" required>
+      <input id="move-date" type="date" required>
       <label for="items">Items damaged or lost, by inventory line number</label>
-      <textarea id="items" name="items" rows="6" required></textarea>
+      <textarea id="items" rows="6" required></textarea>
       <label for="value">Proof of value, if you have it</label>
-      <input id="value" name="value" type="text">
-      <p class="muted">Attach photos of the damage and a full view of the item in the email this form opens. You do not need a receipt to file.</p>
+      <input id="value" type="text">
       <button type="submit">File a claim</button>
+      <p id="filed" class="notice hidden"></p>
     </form>
-
-    <div id="filed" class="card hidden">
-      <h2>Claim received on this page</h2>
-      <p>Reference: <span id="claim-number"></span>. Email the same number to yourself from the message that opened. A written decision follows within 90 days. This is received. It is not a decision.</p>
-    </div>
-
     <h2>What happens next</h2>
     <p>You get a claim number on this page. The same number is in the email. A written decision follows within 90 days. “Received” is not a decision.</p>
     <p>The move is paid in full before the work. A claim is not reviewed until that invoice is paid in full.</p>
@@ -54,27 +44,18 @@
   </main>
   <footer>
     Mikes Moving LLC<br>
-    44 Robbins Street<br>
-    Waltham, MA 02452<br>
-    Phone: <a href="tel:5082156322">508-215-6322</a><br>
-    Claims email: <a href="mailto:claims@mikesmoving.com">claims@mikesmoving.com</a>
+    44 Robbins Street, Waltham, MA 02452<br>
+    <a href="tel:5082156322">508-215-6322</a><br>
+    <a href="mailto:claims@mikesmoving.com">claims@mikesmoving.com</a>
   </footer>
   <script>
     document.getElementById("claim").addEventListener("submit", function (event) {
       event.preventDefault();
       var number = "MM-" + Date.now().toString().slice(-8);
-      var body = [
-        "Mikes Moving LLC claim " + number,
-        "Name: " + document.getElementById("name").value,
-        "Email: " + document.getElementById("email").value,
-        "Phone: " + document.getElementById("phone").value,
-        "Move date: " + document.getElementById("move-date").value,
-        "Items: " + document.getElementById("items").value,
-        "Proof of value: " + document.getElementById("value").value,
-        "Attach photos of the damage and a full view of the item."
-      ].join("\n");
-      document.getElementById("claim-number").textContent = number;
-      document.getElementById("filed").classList.remove("hidden");
+      var body = ["Mikes Moving LLC claim " + number,"Name: " + document.getElementById("name").value,"Email: " + document.getElementById("email").value,"Phone: " + document.getElementById("phone").value,"Move date: " + document.getElementById("move-date").value,"Items: " + document.getElementById("items").value,"Proof of value: " + document.getElementById("value").value,"Attach photos of the damage and a full view of the item."].join("\n");
+      var note = document.getElementById("filed");
+      note.textContent = "Reference: " + number + ". This is received. It is not a decision.";
+      note.classList.remove("hidden");
       window.location.href = "mailto:claims@mikesmoving.com?subject=" + encodeURIComponent("Mikes Moving LLC claim " + number) + "&body=" + encodeURIComponent(body);
     });
   </script>

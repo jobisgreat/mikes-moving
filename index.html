@@ -3,127 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mikes Moving LLC</title>
+  <title>Mikes Moving LLC | Boston</title>
   <meta name="description" content="Mikes Moving LLC. Boston origin. Mike is the carrier. Estimate is not binding.">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <header>
-    <div>
-      <strong>Mikes Moving LLC</strong><br>
-      <span class="muted">44 Robbins Street, Waltham, MA 02452</span>
-    </div>
-    <nav>
-      <a href="tel:5082156322">508-215-6322</a>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/images/mark.jpg" alt="Mikes Moving mark"> Mikes Moving LLC</a>
+    <nav class="nav">
+      <a href="#estimate">Estimate</a>
+      <a href="#cities">Cities</a>
       <a href="/claim.html">File a claim</a>
+      <a class="phone" href="tel:5082156322">508-215-6322</a>
     </nav>
   </header>
-  <main>
-    <h1>Boston moving company.</h1>
-    <p>Mikes Moving LLC. Mike is the carrier.</p>
-    <p>Get an estimate. The estimate is not binding. The price can change on move day.</p>
-
-    <form class="card" id="estimate" action="mailto:jobisgreat@gmail.com" method="post" enctype="text/plain">
+  <section class="hero">
+    <div>
+      <div class="kicker">Boston origin</div>
+      <h1>BOSTON MOVING COMPANY</h1>
+      <p>Mikes Moving LLC. Mike is the carrier.</p>
+      <a class="phone-hero" href="tel:5082156322">508-215-6322</a>
+      <div class="service-line"><span>Local</span><span>Packing</span><span>Storage</span></div>
+    </div>
+    <form class="form-card" id="estimate">
+      <h2>Get an estimate</h2>
+      <p>Not binding. The price can change on move day.</p>
       <label for="destination">Destination city</label>
-      <select id="destination" name="destination" required>
+      <select id="destination" required>
         <option value="">Select a city</option>
-        <option>Cambridge</option>
-        <option>Somerville</option>
-        <option>Chelsea</option>
-        <option>Brookline</option>
-        <option>Everett</option>
-        <option>Revere</option>
-        <option>Winthrop</option>
-        <option>Malden</option>
-        <option>Medford</option>
-        <option>Watertown</option>
-        <option>Melrose</option>
-        <option>Saugus</option>
-        <option>Stoneham</option>
-        <option>Winchester</option>
-        <option>Wakefield</option>
-        <option>Woburn</option>
-        <option>Reading</option>
-        <option>Lynn</option>
-        <option>Lynnfield</option>
-        <option>Burlington</option>
-        <option>Peabody</option>
-        <option>Swampscott</option>
-        <option>Salem</option>
-        <option>Marblehead</option>
-        <option>Danvers</option>
-        <option>Andover</option>
-        <option>Arlington</option>
-        <option>Belmont</option>
-        <option>Newton</option>
-        <option>Waltham</option>
-        <option>Lexington</option>
-        <option>Wellesley</option>
-        <option>Weston</option>
-        <option>Bedford</option>
-        <option>Needham</option>
-        <option>Wayland</option>
-        <option>Lincoln</option>
-        <option>Concord</option>
-        <option>Natick</option>
-        <option>Acton</option>
-        <option>Milton</option>
-        <option>Quincy</option>
-        <option>Dedham</option>
-        <option>Braintree</option>
-        <option>Canton</option>
-        <option>Weymouth</option>
-        <option>Randolph</option>
-        <option>Norwood</option>
-        <option>Westwood</option>
-        <option>Hingham</option>
-        <option>Stoughton</option>
-        <option>Sharon</option>
-        <option>Walpole</option>
+        <option>Cambridge</option><option>Somerville</option><option>Chelsea</option><option>Brookline</option><option>Everett</option><option>Revere</option><option>Winthrop</option><option>Malden</option><option>Medford</option><option>Watertown</option><option>Melrose</option><option>Saugus</option><option>Stoneham</option><option>Winchester</option><option>Wakefield</option><option>Woburn</option><option>Reading</option><option>Lynn</option><option>Lynnfield</option><option>Burlington</option><option>Peabody</option><option>Swampscott</option><option>Salem</option><option>Marblehead</option><option>Danvers</option><option>Andover</option><option>Arlington</option><option>Belmont</option><option>Newton</option><option>Waltham</option><option>Lexington</option><option>Wellesley</option><option>Weston</option><option>Bedford</option><option>Needham</option><option>Wayland</option><option>Lincoln</option><option>Concord</option><option>Natick</option><option>Acton</option><option>Milton</option><option>Quincy</option><option>Dedham</option><option>Braintree</option><option>Canton</option><option>Weymouth</option><option>Randolph</option><option>Norwood</option><option>Westwood</option><option>Hingham</option><option>Stoughton</option><option>Sharon</option><option>Walpole</option>
         <option value="other">City not on the list</option>
       </select>
       <div id="other-wrap" class="hidden">
         <label for="other-city">Type the city</label>
-        <input id="other-city" name="other-city" type="text" autocomplete="address-level2">
+        <input id="other-city" type="text">
       </div>
       <label for="date">Move date</label>
-      <input id="date" name="date" type="date" required>
+      <input id="date" type="date" required>
       <label for="phone">Phone</label>
-      <input id="phone" name="phone" type="tel" required>
+      <input id="phone" type="tel" required>
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" required>
-      <input type="hidden" name="origin" value="Boston">
+      <input id="email" type="email" required>
       <button type="submit">Request an estimate</button>
-      <p class="muted">If the city is not on the list, type it in. A typed city is not a yes. Mike confirms it.</p>
+      <p id="received" class="notice hidden"></p>
     </form>
-
-    <div id="received" class="card hidden">
-      <h2>Request received</h2>
-      <p>Mikes Moving LLC received your estimate request. This is not a booking.</p>
-      <p>Origin: Boston.<br>Destination: <span id="show-city"></span>.<br>Move date: <span id="show-date"></span>.</p>
-      <p>If you typed a city that is not on the list, Mike confirms it before a quote. Call <a href="tel:5082156322">508-215-6322</a>.</p>
+  </section>
+  <section class="proof">
+    <div><strong>Carrier</strong> Mike handles the move</div>
+    <div><strong>Full Value Protection</strong> Pays at full value, not by weight</div>
+    <div><strong>100% up front</strong> Full refund 7 calendar days before, through midnight</div>
+    <div><strong>$100</strong> Deducted if the agreed time is missed</div>
+  </section>
+  <section class="split">
+    <div>
+      <p class="kicker" style="background:#12324a">Waltham</p>
+      <h2>The estimate is not a booking.</h2>
+      <p>Origin is Boston. If the city is not on the list, type it in. A typed city is not a yes. Mike confirms it.</p>
+      <p>Stairs, long carries, shuttles, and packing are in the price. Storage is extra.</p>
+      <p>After midnight on the cutoff date, the penalty is 50%. The other 50% is refunded. The count is calendar days, not business days.</p>
+      <p>A damage claim is filed on the claim page. The invoice is paid in full before a claim is reviewed.</p>
+      <p><a class="phone" href="/claim.html">File a claim</a></p>
     </div>
-
-    <h2>Payment</h2>
-    <p>Payment is 100% up front. Cancel 7 calendar days before the move, on or before midnight, for a full refund. The count is calendar days, not business days. After midnight on that date, the penalty is 50%. The other 50% is refunded.</p>
-    <p>Stairs, long carries, shuttles, and packing are in the price. Storage is extra.</p>
-    <p>Coverage is Full Value Protection. A covered claim pays at full value: repair, replace, or cash at current value. It does not pay by weight. Valuation is not insurance.</p>
-    <p>The pickup window is set when the move is booked. If Mikes Moving LLC misses the agreed time, $100 is deducted from the bill.</p>
-    <p>Call Mike. He handles the move and the claim. <a href="tel:5082156322">508-215-6322</a>. <a href="mailto:claims@mikesmoving.com">claims@mikesmoving.com</a>.</p>
-    <p>A damage claim is filed at the <a href="/claim.html">claim page</a>. The invoice is paid in full before a claim is reviewed.</p>
-
+    <img src="/images/truck.jpg" alt="Mikes Moving truck on a residential street">
+  </section>
+  <section class="section" id="cities">
     <h2>Cities</h2>
     <ul class="cities">
       <li>Cambridge</li><li>Somerville</li><li>Chelsea</li><li>Brookline</li><li>Everett</li><li>Revere</li><li>Winthrop</li><li>Malden</li><li>Medford</li><li>Watertown</li><li>Melrose</li><li>Saugus</li><li>Stoneham</li><li>Winchester</li><li>Wakefield</li><li>Woburn</li><li>Reading</li><li>Lynn</li><li>Lynnfield</li><li>Burlington</li><li>Peabody</li><li>Swampscott</li><li>Salem</li><li>Marblehead</li><li>Danvers</li><li>Andover</li><li>Arlington</li><li>Belmont</li><li>Newton</li><li>Waltham</li><li>Lexington</li><li>Wellesley</li><li>Weston</li><li>Bedford</li><li>Needham</li><li>Wayland</li><li>Lincoln</li><li>Concord</li><li>Natick</li><li>Acton</li><li>Milton</li><li>Quincy</li><li>Dedham</li><li>Braintree</li><li>Canton</li><li>Weymouth</li><li>Randolph</li><li>Norwood</li><li>Westwood</li><li>Hingham</li><li>Stoughton</li><li>Sharon</li><li>Walpole</li>
     </ul>
-  </main>
+  </section>
   <footer>
     Mikes Moving LLC<br>
-    44 Robbins Street<br>
-    Waltham, MA 02452<br>
+    44 Robbins Street, Waltham, MA 02452<br>
     <a href="tel:5082156322">508-215-6322</a><br>
-    <a href="mailto:claims@mikesmoving.com">claims@mikesmoving.com</a><br>
-    <a href="/claim.html">File a claim</a>
+    <a href="mailto:claims@mikesmoving.com">claims@mikesmoving.com</a>
   </footer>
   <script>
     var select = document.getElementById("destination");
@@ -141,18 +94,10 @@
       var date = document.getElementById("date").value;
       var phone = document.getElementById("phone").value;
       var email = document.getElementById("email").value;
-      var body = [
-        "Mikes Moving LLC estimate request",
-        "Origin: Boston",
-        "Destination: " + city,
-        "Move date: " + date,
-        "Phone: " + phone,
-        "Email: " + email,
-        "Typed city is not a yes. Mike confirms it."
-      ].join("\n");
-      document.getElementById("show-city").textContent = city;
-      document.getElementById("show-date").textContent = date;
-      document.getElementById("received").classList.remove("hidden");
+      var body = ["Mikes Moving LLC estimate request","Origin: Boston","Destination: " + city,"Move date: " + date,"Phone: " + phone,"Email: " + email,"Typed city is not a yes. Mike confirms it."].join("\n");
+      var note = document.getElementById("received");
+      note.textContent = "Request received. This is not a booking. Destination: " + city + ". Move date: " + date + ".";
+      note.classList.remove("hidden");
       window.location.href = "mailto:jobisgreat@gmail.com?subject=" + encodeURIComponent("Mikes Moving LLC estimate request") + "&body=" + encodeURIComponent(body);
     });
   </script>
