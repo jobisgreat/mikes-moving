@@ -1,4 +1,4 @@
-// Mike's Moving Company — lead delivery
+// MJ Moving Company — lead delivery
 // Receives quote requests and claims from the website and delivers them to Mike.
 //
 // Channels (each turns on only when its environment variables are set):
@@ -128,18 +128,18 @@ function customerEmail(l) {
   if (l.kind === 'quote') {
     return {
       subject: "We got your moving quote request",
-      text: `Hi ${l.name.split(' ')[0]},\n\nThanks for reaching out to Mike's Moving Company. We received your request for a move on ${l.date} (${l.from} to ${l.to}, ${l.size}).\n\nWe'll call or text you shortly to go over the details and get you a written quote.\n\nNeed us sooner? Call or text ${phone}. We answer 24/7.\n\nMike's Moving Company\nMovers who care`,
+      text: `Hi ${l.name.split(' ')[0]},\n\nThanks for reaching out to MJ Moving Company. We received your request for a move on ${l.date} (${l.from} to ${l.to}, ${l.size}).\n\nWe'll call or text you shortly to go over the details and get you a written quote.\n\nNeed us sooner? Call or text ${phone}. We answer 24/7.\n\nMJ Moving Company\nMovers who care`,
     };
   }
   if (l.kind === 'partner') {
     return {
-      subject: "Welcome to the Mike's Moving Company referral program",
-      text: `Hi ${l.name.split(' ')[0]},\n\nThanks for joining the Mike's Moving Company referral program. We'll call you shortly to set up your account and confirm your referral code${l.code ? ' (' + l.code + ')' : ''}, plus how and when rewards are paid.\n\nQuestions? Call or text ${phone}, 24/7.\n\nMike's Moving Company\nMovers who care`,
+      subject: "Welcome to the MJ Moving Company referral program",
+      text: `Hi ${l.name.split(' ')[0]},\n\nThanks for joining the MJ Moving Company referral program. We'll call you shortly to set up your account and confirm your referral code${l.code ? ' (' + l.code + ')' : ''}, plus how and when rewards are paid.\n\nQuestions? Call or text ${phone}, 24/7.\n\nMJ Moving Company\nMovers who care`,
     };
   }
   return {
     subject: 'We received your claim',
-    text: `Hi ${l.name.split(' ')[0]},\n\nThis confirms Mike's Moving Company received your ${l.claimType || 'claim'}. We'll review it and respond to you in writing.\n\nIf you have photos of the damage, reply to this email and attach them.\n\nQuestions? Call or text ${phone}, 24/7.\n\nMike's Moving Company`,
+    text: `Hi ${l.name.split(' ')[0]},\n\nThis confirms MJ Moving Company received your ${l.claimType || 'claim'}. We'll review it and respond to you in writing.\n\nIf you have photos of the damage, reply to this email and attach them.\n\nQuestions? Call or text ${phone}, 24/7.\n\nMJ Moving Company`,
   };
 }
 

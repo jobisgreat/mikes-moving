@@ -1,4 +1,4 @@
-# Mike's Moving Company: make the quote form live
+# MJ Moving Company: make the quote form live
 
 The website is finished, and so is the code that delivers leads. Each lead reaches Mike as soon as a channel below is switched on. Without any channel, the form tells customers to call 508-215-6322, so no lead disappears without anyone knowing.
 
