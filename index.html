@@ -1247,7 +1247,7 @@ nav.main .dd-menu a.on b{color:var(--link)}
         <div class="big" id="rcName">Your name</div>
         <div class="small" id="rcCo">Your company</div>
         <div><span class="small">Your referral code</span><br><span class="code" id="rcCode">MMC-YOURNAME</span></div>
-        <div class="url" id="rcUrl">mikesmovingcompany.com/?ref=MMC-YOURNAME</div>
+        <div class="url" id="rcUrl">yourwebsite.com/?ref=MMC-YOURNAME</div>
         <span class="lbl-foot"><span class="barcode" aria-hidden="true"></span><span class="small">Hand it out. We do the rest.</span></span>
       </div>
     </aside>
@@ -1622,6 +1622,7 @@ $('#claimForm').addEventListener('submit',e=>{
     .finally(()=>{ btn.disabled=false; btn.textContent='Submit claim'; });
 });
 const claimT0=Date.now();
+try{ const u=document.getElementById('rcUrl'); if(LIVE&&u) u.textContent=location.host+'/?ref=MMC-YOURNAME'; }catch(_){}
 if(LIVE){
   const note=document.querySelector('#claimForm .form-row .note'); if(note) note.textContent='We’ll email you a confirmation. If you have photos, reply to that email with them attached.';
   $('#claimDone').innerHTML='<span class="tag">Received</span><h2>Thanks. We received your claim.</h2><p class="muted">A confirmation is on its way to your email. Reply to it with any photos of the damage. We review every claim and respond in writing.</p>';
@@ -1780,7 +1781,7 @@ $('#svcGrid3').innerHTML=Object.keys(SERVICES).map(svcCard).join('');
   const f=$('#refForm'); if(!f) return; const t0=Date.now();
   const codeOf=n=>{ const p=n.trim().toUpperCase().replace(/[^A-Z\s]/g,'').split(/\s+/).filter(Boolean); if(!p.length) return 'MMC-YOURNAME'; return ('MMC-'+(p[0]+(p.length>1?p[p.length-1][0]:''))).slice(0,16); };
   const upd=()=>{ const n=$('#r_name').value.trim(), c=$('#r_company').value.trim(), code=codeOf(n);
-    $('#rcName').textContent=n||'Your name'; $('#rcCo').textContent=c||'Your company'; $('#rcCode').textContent=code; $('#rcUrl').textContent='mikesmovingcompany.com/?ref='+code; };
+    $('#rcName').textContent=n||'Your name'; $('#rcCo').textContent=c||'Your company'; $('#rcCode').textContent=code; $('#rcUrl').textContent=(LIVE?location.host:'yourwebsite.com')+'/?ref='+code; };
   ['r_name','r_company'].forEach(id=>$('#'+id).addEventListener('input',upd));
   $('#r_phone').addEventListener('input',e=>{ let d=e.target.value.replace(/\D/g,''); if(d.length===11&&d[0]==='1') d=d.slice(1); d=d.slice(0,10);
     e.target.value=d.length>6?`(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`:d.length>3?`(${d.slice(0,3)}) ${d.slice(3)}`:d; });
