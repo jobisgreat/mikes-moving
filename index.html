@@ -1336,7 +1336,7 @@ const SERVICES = {
     includes:['Floor, doorway and banister protection','Every piece of furniture pad-wrapped','Bed frames, tables and desks taken apart and put back together','Stair, elevator and loading-dock planning','Help reserving curb space for the truck','Items placed in the room you choose'],
     good:['Apartment and condo moves','Single-family homes','Office and small business moves','Moves into and out of storage'],
     faq:[['Do you move on weekends and at night?','Yes. We schedule moves seven days a week, including early mornings and evenings, and we answer the phone 24 hours a day.'],['Can you move a single item?','Yes. Call with what it is and where it is going and we will quote it.']],
-    photo:'Crew wrapping a sofa in blue moving pads inside a Boston apartment.'},
+    photo:'Crew wrapping a sofa in blue moving pads inside a Boston apartment.', img:'photo-wrap-sofa.jpg'},
   packing:{title:'Packing & unpacking',icon:'packing',short:'Full or partial packing with quality materials, labeled by room.',
     lead:'Packing takes longer than most people expect. Hand us all of it, or just the kitchen and the breakables.',
     includes:['Full-home packing the day before or morning of the move','Partial packing for kitchens, glassware and art','Boxes, paper, tape and wrap supplied','Every box labeled by room','Unpacking and setup at the new home','Empty boxes and packing debris hauled away'],
@@ -1666,7 +1666,7 @@ function renderService(key){
   <section class="block"><div class="wrap two">
     <div class="prose" style="gap:28px">
       <div class="prose"><h2>What's included</h2><ul class="ticks">${s.includes.map(i=>`<li>${i}</li>`).join('')}</ul></div>
-      <div class="photo"><span class="tag">Photo slot</span><p>${s.photo}</p></div>
+      ${s.img?`<figure class="photo-real" style="max-width:560px"><img src="${s.img}" width="1000" height="1250" alt="${s.photo}" loading="lazy"></figure>`:`<div class="photo"><span class="tag">Photo slot</span><p>${s.photo}</p></div>`}
       <div class="prose"><h2>Common questions</h2><div class="faq">${faqHtml(s.faq)}</div></div>
     </div>
     <aside class="side">
