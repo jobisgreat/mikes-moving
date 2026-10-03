@@ -18,7 +18,7 @@
       ]
     },
     {
-      "source": "/(truck-mj.mp4|truck-mj-poster.jpg|photo-crew-v3.jpg|logo.png|favicon.svg|apple-touch-icon.png)",
+      "source": "/(truck-mj.mp4|truck-mj-poster.jpg|photo-crew-v5.jpg|logo.png|favicon.svg|apple-touch-icon.png)",
       "headers": [
         {
           "key": "Cache-Control",
