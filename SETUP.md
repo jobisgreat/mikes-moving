@@ -32,7 +32,7 @@ Recommendation: turn on **Email plus Pushover** now, so Mike is alerted within s
 
 ## Referral program
 
-Partner sign-ups from the Referral program page reach Mike the same way quotes do. A partner's link (`yoursite.com/?ref=MMC-JANED`) tags any quote that visitor sends, so Mike sees "ref MMC-JANED" in the text and the email subject. **Set the reward amount and payout rules before promoting the program.** The page deliberately doesn't state a number.
+Partner sign-ups from the Referral program page reach Mike the same way quotes do. A partner's link (`yoursite.com/?ref=MJ-JANED`) tags any quote that visitor sends, so Mike sees "ref MJ-JANED" in the text and the email subject. **Set the reward amount and payout rules before promoting the program.** The page deliberately doesn't state a number.
 
 ## Before going public
 
