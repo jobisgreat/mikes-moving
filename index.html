@@ -798,7 +798,7 @@ nav.main .dd-menu a.on b{color:var(--link)}
           </div>
         </div>
       <figure class="hero-video svc-video">
-        <video id="heroVid" src="truck-mj.mp4" poster="truck-mj-poster.jpg" autoplay muted loop playsinline aria-label="MJ Moving Company box truck, wrapped in navy and gold, on a Boston brownstone street in autumn"></video>
+        <video id="heroVid" src="truck-mike.mp4" poster="truck-mike-poster.jpg" autoplay muted loop playsinline aria-label="MJ Moving Company truck leaving an MJ storefront and driving down a Boston street in autumn"></video>
         <button type="button" class="vid-btn" id="vidBtn" aria-controls="heroVid">Pause</button>
       </figure>
       </div>
@@ -1596,7 +1596,7 @@ function wireQuote(host,p){
   const v=$('#heroVid'), bg=$('#heroBg'), btn=$('#vidBtn');
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const wide=window.matchMedia('(min-width: 901px)').matches;
-  if(wide && !reduce){ bg.src='truck-mj.mp4'; bg.play().catch(()=>{}); }
+  if(wide && !reduce){ bg.src='truck-mike.mp4'; bg.play().catch(()=>{}); }
   const setLabel=()=>{ btn.textContent=v.paused?'Play':'Pause'; };
   if(reduce){ v.removeAttribute('autoplay'); v.pause(); }
   v.addEventListener('play',setLabel); v.addEventListener('pause',setLabel);
