@@ -559,7 +559,7 @@ nav.main a{white-space:nowrap}
 /* service cards as moving-box shipping labels */
 .svc.label{position:relative;display:block;padding:16px;background:var(--kraft-soft);border:1px solid rgba(184,137,79,.45);border-radius:6px;color:var(--ink);text-decoration:none;transition:transform .2s ease,box-shadow .2s ease}
 .svc.label::before{content:"";position:absolute;top:-7px;left:50%;width:96px;height:18px;transform:translateX(-50%);background:var(--tape);opacity:.92;box-shadow:0 1px 2px rgba(0,0,0,.15);background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.25) 0 2px,transparent 2px 9px)}
-.svc.label:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:0 18px 30px -18px rgba(5,15,40,.45)}
+.svc.label:hover{transform:translateY(-3px);box-shadow:0 18px 30px -18px rgba(5,15,40,.45)}
 .lbl{background:var(--surface);border:2px solid var(--ink);border-radius:4px;padding:14px 16px;display:grid;gap:10px;height:100%}
 .lbl-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:8px;border-bottom:2px solid var(--ink);font:600 .66rem var(--mono);letter-spacing:.1em;text-transform:uppercase}
 .lbl-top .up{display:inline-flex;gap:1px;font-size:.9rem;letter-spacing:0;color:var(--ink)}
@@ -715,6 +715,21 @@ nav.main .dd-menu a.on b{color:var(--link)}
 .photo-real.founder{position:relative;aspect-ratio:4/5}
 .photo-real.founder img{object-position:50% 30%}
 .photo-real.founder figcaption{position:absolute;left:12px;bottom:12px;background:rgba(10,20,44,.78);color:#fff;font:600 .8rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:6px}
+
+/* v21: audit fixes */
+@media (min-width:1441px){ .top .wrap{max-width:1340px} }
+@media (max-width:600px){ .hero-title .proof,.hero-title > p:not(.sub){display:none} }
+:root{--kraft-text:#8A663B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--kraft-text:#CFA474}}
+:root[data-theme="dark"]{--kraft-text:#CFA474}
+.tag,.process li::before,legend,.seg legend,.foot h4,.logo small,.faq summary::after,.extras li::before,.lic .pending,.svc .ico{color:var(--kraft-text)}
+a.tel,a.mail{padding-block:8px}
+.qcard .legalnote a{display:inline-block;padding-block:7px}
+.vid-btn{padding:9px 14px}
+.faq-more{display:inline-block;padding-block:8px}
+.hero-title .num{display:inline-block;padding-block:6px}
+.crumb a{display:inline-block;padding-block:9px}
+.panel > a:not(.btn),.ticks a{display:inline-block;padding-block:6px}
 </style>
 </head>
 <body>
@@ -798,7 +813,7 @@ nav.main .dd-menu a.on b{color:var(--link)}
           </div>
         </div>
       <figure class="hero-video svc-video">
-        <video id="heroVid" src="truck-mike.mp4" poster="truck-mike-poster.jpg" autoplay muted loop playsinline aria-label="MJ Moving Company truck leaving an MJ storefront and driving down a Boston street in autumn"></video>
+        <video id="heroVid" data-src="truck-mike.mp4" poster="truck-mike-poster.jpg" preload="none" muted loop playsinline aria-label="MJ Moving Company truck leaving an MJ storefront and driving down a Boston street in autumn"></video>
         <button type="button" class="vid-btn" id="vidBtn" aria-controls="heroVid">Pause</button>
       </figure>
       </div>
@@ -894,7 +909,7 @@ nav.main .dd-menu a.on b{color:var(--link)}
     <div class="wrap">
       <div class="sec-head">
         <span class="tag">Service area <b>· 343 cities &amp; towns</b></span>
-        <h2>All of mainland Massachusetts</h2>
+        <h2>Massachusetts and beyond</h2>
         <p class="lead">Based in Greater Boston and moving families and businesses statewide, from the North Shore to the Berkshires and out to Cape Cod. Martha’s Vineyard and Nantucket are not served. Pick a region, or hover a town on the map.</p>
       </div>
       <div id="amapHome">
@@ -917,7 +932,7 @@ nav.main .dd-menu a.on b{color:var(--link)}
         <h2>Before you book</h2>
       </div>
       <div class="faq" id="faqHome"></div>
-      <p style="margin-top:22px"><a href="#faq">All questions →</a></p>
+      <p style="margin-top:22px"><a class="faq-more" href="#faq">All questions →</a></p>
     </div>
   </section>
 </div>
@@ -1285,7 +1300,7 @@ nav.main .dd-menu a.on b{color:var(--link)}
       <details><summary>When do I get paid?</summary><p>After your referral’s move is completed. We’ll explain the payout schedule when you enroll.</p></details>
       <details><summary>Is there a limit or a minimum?</summary><p>No minimum to join, and no cap on how many clients you can refer.</p></details>
       <details><summary>How do you know the client came from me?</summary><p>Your client gives your referral code when they call or request a quote, or uses your personal link. You can also text us their name and we’ll note it.</p></details>
-      <details><summary>Where do you move?</summary><p>All of mainland Massachusetts, 343 cities and towns. We don’t serve Martha’s Vineyard or Nantucket.</p></details>
+      <details><summary>Where do you move?</summary><p>All of Massachusetts, 343 cities and towns, plus out-of-state moves. We don’t serve Martha’s Vineyard or Nantucket.</p></details>
     </div>
   </div></section>
 </div>
@@ -1305,7 +1320,7 @@ nav.main .dd-menu a.on b{color:var(--link)}
     <div class="foot">
       <div>
         <a class="logo foot-logo" href="#home" aria-label="MJ Moving Company home"><img src="mj-logo.png" width="240" height="156" alt="MJ Moving Company, Movers who care"></a>
-        <p class="muted" style="margin-top:14px;font-size:.94rem">Moving, packing, junk removal, storage and TV mounting across the United States. Open 24 hours, 7 days a week.</p>
+        <p class="muted" style="margin-top:14px;font-size:.94rem">Moving, packing, junk removal, storage and TV mounting across Massachusetts and beyond. Open 24 hours, 7 days a week.</p>
         <p class="lic">USDOT # <span class="pending">to be confirmed</span></p>
       </div>
       <div><h4>Services</h4><ul id="footSvc"></ul></div>
@@ -1337,7 +1352,7 @@ const ICON = {
 };
 
 const SERVICES = {
-  moving:{title:'Local moving',icon:'moving',short:'Apartments, triple-deckers, condos and houses moved with care anywhere on mainland Massachusetts.',
+  moving:{title:'Local moving',icon:'moving',short:'Apartments, triple-deckers, condos and houses moved with care across Massachusetts and beyond.',
     lead:'From a studio in Allston to a four-bedroom colonial in Lexington, we plan the move around your building, your street and your schedule.',
     includes:['Floor, doorway and banister protection','Every piece of furniture pad-wrapped','Bed frames, tables and desks taken apart and put back together','Stair, elevator and loading-dock planning','Help reserving curb space for the truck','Items placed in the room you choose'],
     good:['Apartment and condo moves','Single-family homes','Office and small business moves','Moves into and out of storage'],
@@ -1598,9 +1613,13 @@ function wireQuote(host,p){
   const wide=window.matchMedia('(min-width: 901px)').matches;
   if(wide && !reduce){ bg.src='truck-mike.mp4'; bg.play().catch(()=>{}); }
   const setLabel=()=>{ btn.textContent=v.paused?'Play':'Pause'; };
-  if(reduce){ v.removeAttribute('autoplay'); v.pause(); }
+  const load=()=>{ if(!v.getAttribute('src')) v.src=v.dataset.src; };
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ io.disconnect(); load(); if(!reduce) v.play().catch(()=>{}); } },{rootMargin:'300px 0px'});
+    io.observe(v);
+  } else { load(); if(!reduce) v.play().catch(()=>{}); }
   v.addEventListener('play',setLabel); v.addEventListener('pause',setLabel);
-  btn.addEventListener('click',()=>{ if(v.paused){ v.play().catch(()=>{}); if(bg.src) bg.play().catch(()=>{}); } else { v.pause(); bg.pause(); } });
+  btn.addEventListener('click',()=>{ load(); if(v.paused){ v.play().catch(()=>{}); if(bg.src) bg.play().catch(()=>{}); } else { v.pause(); bg.pause(); } });
   setLabel();
 })();
 wireQuote($('#heroForm'),'hero');
