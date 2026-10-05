@@ -18,7 +18,7 @@
       ]
     },
     {
-      "source": "/(truck-mike.mp4|truck-mike-poster.jpg|photo-crew-v5.jpg|og-share.jpg|photo-wrap-sofa.jpg|photo-junk-load.jpg|photo-storage.jpg|photo-tv-mount.jpg|photo-supplies.jpg|photo-storefront-truck.jpg|logo.png|favicon.svg|apple-touch-icon.png)",
+      "source": "/(truck-mike.mp4|truck-mike-poster.jpg|photo-crew-v5.jpg|og-share.jpg|photo-wrap-sofa.jpg|photo-junk-load.jpg|photo-storage.jpg|photo-tv-mount.jpg|photo-packing.jpg|photo-supplies.jpg|photo-storefront-truck.jpg|logo.png|favicon.svg|apple-touch-icon.png)",
       "headers": [
         {
           "key": "Cache-Control",
