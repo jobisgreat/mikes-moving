@@ -1425,7 +1425,7 @@ $('#regions').innerHTML = REGIONS.map(r=>`<div class="region"><span class="tag">
 const faqHtml = list => list.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('');
 $('#faqHome').innerHTML = faqHtml(FAQ.slice(0,4));
 $('#faqAll').innerHTML = faqHtml(FAQ);
-const tapeText = ['MJ Moving Company','Handle with care','Open 24/7','<a class="tel" href="tel:+15082156322">508-215-6322</a>','This side up','Serving mainland Massachusetts'];
+const tapeText = ['MJ Moving Company','Handle with care','Open 24/7','<a class="tel" href="tel:+15082156322">508-215-6322</a>','This side up','Serving Massachusetts and beyond'];
 const tapeHtml = [...tapeText,...tapeText,...tapeText,...tapeText].map(t=>`<span>${t}</span>`).join('');
 $('#tapeRun').innerHTML = tapeHtml;
 document.querySelectorAll('.tapeClone').forEach(el=>el.innerHTML=tapeHtml);
