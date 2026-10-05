@@ -143,6 +143,15 @@ function customerEmail(l) {
   };
 }
 
+// Customer-facing email: MJ logo on top, message below. Plain text version is sent alongside.
+export function brandedHtml(text, site = process.env.SITE_URL || 'https://www.mjmovingco.com') {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F5F7FA;padding:24px 0"><tr><td align="center">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #D8DEE8;border-radius:12px">
+<tr><td align="center" style="padding:28px 24px 8px"><a href="${site}"><img src="${site}/email-logo.png" width="180" height="117" alt="MJ Moving Company" style="display:block;border:0;width:180px;height:auto"></a></td></tr>
+<tr><td style="padding:12px 32px 28px;font:16px/1.55 Arial,Helvetica,sans-serif;color:#0E1A31;white-space:pre-wrap">${esc(text)}</td></tr>
+</table></td></tr></table>`;
+}
+
 async function sendResend({ to, subject, html, text, replyTo }) {
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -230,7 +239,7 @@ export default async function handler(req, res) {
   if (on.email && process.env.SEND_CUSTOMER_EMAIL !== 'false') {
     const c = customerEmail(lead);
     try {
-      await sendResend({ to: lead.email, subject: c.subject, text: c.text, html: `<p style="font:15px Arial;white-space:pre-wrap">${esc(c.text)}</p>`, replyTo: process.env.LEAD_TO_EMAIL });
+      await sendResend({ to: lead.email, subject: c.subject, text: c.text, html: brandedHtml(c.text), replyTo: process.env.LEAD_TO_EMAIL });
       delivered.customerEmail = true;
     } catch (e) {
       delivered.customerEmail = false;
