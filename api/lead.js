@@ -123,23 +123,38 @@ function mikeEmail(l) {
   return { subject, html, text };
 }
 
-function customerEmail(l) {
+// "Saturday, October 24" from 10/24/2026 or 2026-10-24; falls back to what the customer typed.
+export function niceDate(v) {
+  const m = String(v || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/) || String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return v;
+  const [y, mo, d] = m[1].length === 4 ? [m[1], m[2], m[3]] : [m[3], m[1], m[2]];
+  const dt = new Date(Date.UTC(+y, +mo - 1, +d, 12));
+  if (isNaN(dt)) return v;
+  return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+}
+
+// Customer emails come from Mike personally. Replies go to his inbox (LEAD_TO_EMAIL).
+const CUSTOMER_FROM = () => process.env.CUSTOMER_FROM_EMAIL || 'Mike Bourque <mike@mjmovingco.com>';
+
+export function customerEmail(l) {
   const phone = process.env.BUSINESS_PHONE_DISPLAY || '508-215-6322';
+  const first = l.name.split(' ')[0];
+  const sig = `Mike Bourque\nOwner, MJ Moving Company\n${phone} · mjmovingco.com`;
   if (l.kind === 'quote') {
     return {
-      subject: "We got your moving quote request",
-      text: `Hi ${l.name.split(' ')[0]},\n\nThanks for reaching out to MJ Moving Company. We received your request for a move on ${l.date} (${l.from} to ${l.to}, ${l.size}).\n\nWe'll call or text you shortly to go over the details and get you a written quote.\n\nNeed us sooner? Call or text ${phone}. We answer 24/7.\n\nMJ Moving Company\nMovers who care`,
+      subject: `Got your moving request, ${first}`,
+      text: `Hi ${first},\n\nThis is Mike Bourque, owner of MJ Moving Company. Thanks for sending your request for ${niceDate(l.date)}, ${l.from} to ${l.to} (${l.size.toLowerCase()}).\n\nI'll call or text you shortly to go over the details. You'll get a written quote before anything is booked.\n\nIf you'd rather talk now, call or text me at ${phone}. We answer 24/7. And if anything changes, just reply to this email.\n\n${sig}`,
     };
   }
   if (l.kind === 'partner') {
     return {
-      subject: "Welcome to the MJ Moving Company referral program",
-      text: `Hi ${l.name.split(' ')[0]},\n\nThanks for joining the MJ Moving Company referral program. We'll call you shortly to set up your account and confirm your referral code${l.code ? ' (' + l.code + ')' : ''}, plus how and when rewards are paid.\n\nQuestions? Call or text ${phone}, 24/7.\n\nMJ Moving Company\nMovers who care`,
+      subject: `Thanks for joining, ${first}`,
+      text: `Hi ${first},\n\nThis is Mike Bourque, owner of MJ Moving Company. Thanks for signing up for the referral program.\n\nI'll call you shortly to set up your account and confirm your referral code${l.code ? ' (' + l.code + ')' : ''}, plus how and when rewards are paid.\n\nAny questions before then, call or text me at ${phone}, or just reply here.\n\n${sig}`,
     };
   }
   return {
-    subject: 'We received your claim',
-    text: `Hi ${l.name.split(' ')[0]},\n\nThis confirms MJ Moving Company received your ${l.claimType || 'claim'}. We'll review it and respond to you in writing.\n\nIf you have photos of the damage, reply to this email and attach them.\n\nQuestions? Call or text ${phone}, 24/7.\n\nMJ Moving Company`,
+    subject: `I got your ${(l.claimType || 'claim').toLowerCase()}, ${first}`,
+    text: `Hi ${first},\n\nThis is Mike Bourque, owner of MJ Moving Company. I'm sorry something went wrong with your move, and thank you for telling me.\n\nI've received your ${(l.claimType || 'claim').toLowerCase()}. I'll review it with the crew and answer you in writing.\n\nIf you have photos of the damage, reply to this email and attach them. You can also call or text me at ${phone}.\n\n${sig}`,
   };
 }
 
@@ -152,11 +167,11 @@ export function brandedHtml(text, site = process.env.SITE_URL || 'https://www.mj
 </table></td></tr></table>`;
 }
 
-async function sendResend({ to, subject, html, text, replyTo }) {
+async function sendResend({ to, subject, html, text, replyTo, from }) {
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: process.env.LEAD_FROM_EMAIL, to: [to], subject, html, text, reply_to: replyTo }),
+    body: JSON.stringify({ from: from || process.env.LEAD_FROM_EMAIL, to: [to], subject, html, text, reply_to: replyTo }),
   });
   if (!r.ok) throw new Error(`resend ${r.status}: ${(await r.text()).slice(0, 200)}`);
 }
@@ -239,7 +254,7 @@ export default async function handler(req, res) {
   if (on.email && process.env.SEND_CUSTOMER_EMAIL !== 'false') {
     const c = customerEmail(lead);
     try {
-      await sendResend({ to: lead.email, subject: c.subject, text: c.text, html: brandedHtml(c.text), replyTo: process.env.LEAD_TO_EMAIL });
+      await sendResend({ from: CUSTOMER_FROM(), to: lead.email, subject: c.subject, text: c.text, html: brandedHtml(c.text), replyTo: process.env.LEAD_TO_EMAIL });
       delivered.customerEmail = true;
     } catch (e) {
       delivered.customerEmail = false;
