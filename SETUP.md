@@ -36,6 +36,6 @@ Partner sign-ups from the Referral program page reach Mike the same way quotes d
 
 ## Before going public
 
-- Fix the USDOT number in the footer. The number provided (2232023) belongs to another company.
+- USDOT 840376 is in the footer (Tim, 10 Oct 2026). FMCSA SAFER showed it INACTIVE on 10 Oct 2026; Tim says the registration is being processed. Recheck SAFER before relying on it.
 - Make sure the text-consent checkboxes name the business's legal name exactly as registered with Twilio.
 - Point the domain at Vercel and update the email address on the site if the domain changes.
