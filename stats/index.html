@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#09090b">
+<title>Site Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#09090b; --ink:#fafaf9; --muted:#a8a8b0; --faint:#6e6e78; --rule:#26262b; --rule-strong:#3a3a41; --track:#16161a;
+  --accent:#ffb020; --accent-hi:#ffc94d; --accent-lo:#c27a00; --accent-ink:#1a1200;
+  --a1:#ffb020; --a2:#c98a14; --a3:#8f6312; --a4:#5e430f; --a5:#4a4a52;
+  --up:#3ddc84; --down:#ff7a6e; --bad:#ff7a6e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4;padding:32px 20px 64px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+svg{display:block;overflow:visible}
+
+/* ---------- Header ---------- */
+header{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end;padding-bottom:22px;border-bottom:1px solid var(--rule-strong)}
+.site{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(26px,4vw,34px);font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-top:8px}
+.status{display:flex;align-items:center;gap:14px}
+.stamp{text-align:right;font-size:14px;color:var(--muted);line-height:1.35}
+.stamp b{display:block;color:var(--ink);font-weight:600;font-size:15px}
+.stamp .auto{font-size:12px;color:var(--faint)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:1px;box-shadow:0 0 0 3px rgba(255,176,32,.16)}
+.btn{font:inherit;font-size:14px;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--rule-strong);border-radius:8px;padding:10px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:border-color .15s}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn svg{width:15px;height:15px}
+.btn.busy svg{animation:spin .9s linear infinite}
+.btn[disabled]{opacity:.6;cursor:default}
+@keyframes spin{to{transform:rotate(360deg)}}
+.banner{margin-top:20px;border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:12px 16px;font-size:14px;font-weight:600}
+.warn{margin-top:14px;font-size:14px;color:var(--bad)}
+
+/* ---------- Headline strip ---------- */
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--rule)}
+.kpi{padding:34px 28px 30px;border-left:1px solid var(--rule);display:flex;flex-direction:column;min-width:0}
+.kpi:first-child{border-left:0;padding-left:0}
+.kpi:last-child{padding-right:0}
+.kpi .lbl{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi .val{font-size:clamp(64px,9vw,112px);font-weight:700;line-height:.86;letter-spacing:-.045em;margin:18px 0 14px}
+.kpi.hot .val{color:var(--accent)}
+.kpi .spark{height:44px;margin-top:auto}
+.delta{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;margin-bottom:16px;min-height:20px}
+.delta.up{color:var(--up)}.delta.down{color:var(--down)}.delta.flat,.delta.na{color:var(--faint)}
+.delta small{font-weight:500;color:var(--faint);font-size:13px}
+
+/* ---------- Sections ---------- */
+section{padding:40px 0 44px;border-bottom:1px solid var(--rule)}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:28px;flex-wrap:wrap}
+.sec-no{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--faint)}
+h2{font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.sec-note{font-size:14px;color:var(--faint);margin-left:auto}
+
+/* ---------- 01 Visitor charts ---------- */
+.charts{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,10fr);gap:48px}
+.chart-title{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;gap:12px}
+.chart-title span{font-size:14px;font-weight:600}
+.chart-title em{font-style:normal;font-size:13px;color:var(--faint)}
+.plot{position:relative;height:200px;border-bottom:1px solid var(--rule-strong)}
+.grid{position:absolute;left:0;right:0;border-top:1px dashed var(--rule);pointer-events:none}
+.grid b{position:absolute;right:0;top:-7px;line-height:1;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;color:var(--faint)}
+.avg{position:absolute;left:0;border-top:1.5px dashed var(--accent-hi);opacity:.9;pointer-events:none;z-index:2}
+.avg b{position:absolute;left:0;top:-20px;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--accent-hi);background:var(--bg);padding:0 4px 0 0;white-space:nowrap}
+.bars{position:absolute;inset:0;display:flex;align-items:flex-end}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.bar .fill{width:100%;background:linear-gradient(to top,var(--accent-lo),var(--accent));border-radius:3px 3px 0 0;opacity:.78}
+.bar.today .fill{background:linear-gradient(to top,var(--accent),var(--accent-hi));opacity:1;box-shadow:0 0 22px rgba(255,176,32,.45)}
+.bar.zero .fill{background:var(--rule-strong);height:2px!important;border-radius:0;box-shadow:none;opacity:1}
+.bar .v{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;margin-bottom:7px}
+.bar.zero .v{color:var(--faint)}
+.bar.today .v{color:var(--accent-hi)}
+.b7 .plot{margin-top:28px}.b7 .bars{gap:10px}.b7 .fill{max-width:64px}
+.b30 .bars{gap:3px;right:36px}.b30 .avg{right:36px}
+.xaxis{display:flex;margin-top:10px;font-size:12px;color:var(--faint)}
+.b7 .xaxis{gap:10px}.b7 .xaxis span{flex:1;text-align:center;min-width:0;white-space:nowrap}
+.b30 .xaxis{justify-content:space-between;padding-right:36px}
+.xaxis .today{color:var(--accent);font-weight:600}
+
+/* Devices */
+.devices{display:grid;grid-template-columns:auto minmax(0,1fr);gap:36px;align-items:center;margin-top:44px;padding-top:36px;border-top:1px solid var(--rule)}
+.dev-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.dev-sub{font-size:13px;color:var(--faint);margin-bottom:18px}
+.dev-rows{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.dev{display:flex;gap:12px;align-items:center;min-width:0}
+.dev svg{width:30px;height:30px;flex-shrink:0;color:var(--muted)}
+.dev b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.dev span{font-size:13px;color:var(--muted)}
+.dev.top svg{color:var(--accent)}
+
+/* ---------- 02 Top pages ---------- */
+.rows{list-style:none;display:flex;flex-direction:column;gap:10px}
+.rows li{position:relative;height:52px;border-radius:6px;background:var(--track);overflow:hidden}
+.rows .fillbar{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,rgba(255,176,32,.22),rgba(255,176,32,.42));border-radius:6px}
+.rows li:first-child .fillbar{background:linear-gradient(90deg,rgba(255,176,32,.40),rgba(255,176,32,.72))}
+.rows .inner{position:relative;height:100%;display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:0 18px 0 14px}
+.rank{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--muted)}
+.path{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.path small{font-family:"IBM Plex Sans",sans-serif;color:var(--muted);font-size:13px;margin-left:6px}
+.share{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
+.count{font-size:24px;font-weight:700;letter-spacing:-.02em;text-align:right;min-width:2.2em}
+
+/* ---------- 03 Key pages ---------- */
+.key{display:grid;grid-template-columns:auto minmax(0,1fr);gap:56px;align-items:center}
+.donut{width:240px;height:240px;position:relative}
+.donut .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.donut .center b{font-size:64px;font-weight:700;letter-spacing:-.04em;line-height:.9;color:var(--accent)}
+.donut .center span{font-size:13px;color:var(--muted);margin-top:8px;max-width:12ch}
+.donut.empty .center b{color:var(--rule-strong)}
+.legend{list-style:none}
+.legend li{display:grid;grid-template-columns:14px minmax(0,1fr) auto 52px;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--rule);font-size:15px}
+.legend li:first-child{border-top:0}
+.sw{width:14px;height:14px;border-radius:3px}
+.legend .path{font-size:15px}
+.legend .n{font-weight:700;font-size:18px}
+.legend .pct{font-family:"IBM Plex Mono",monospace;color:var(--faint);font-size:13px;text-align:right}
+.empty-msg strong{display:block;font-size:clamp(22px,2.8vw,28px);font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.empty-msg p{font-size:16px;color:var(--muted);margin-top:10px;max-width:46ch}
+.words{font-size:13px;color:var(--faint);margin-top:28px}
+.words code{font-family:"IBM Plex Mono",monospace;color:var(--muted)}
+
+/* ---------- Generic empty callout ---------- */
+.callout{border:1.5px solid var(--rule-strong);border-left:4px solid var(--accent);border-radius:6px;padding:26px 28px 28px}
+.callout strong{display:block;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.2}
+.callout p{font-size:16px;color:var(--muted);margin-top:8px;max-width:52ch}
+.error{color:var(--bad)}
+
+/* ---------- Key gate ---------- */
+.gate{max-width:440px;margin:72px auto 0}
+.gate h2{font-size:22px;letter-spacing:-.01em;text-transform:none;margin-bottom:10px}
+.gate p{color:var(--muted);font-size:15px;margin-bottom:22px}
+.gate input{font:inherit;font-size:17px;width:100%;padding:14px 16px;border:1px solid var(--rule-strong);border-radius:8px;background:var(--track);color:var(--ink)}
+.gate input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.gate .btn{margin-top:12px;width:100%;justify-content:center;padding:14px;font-size:16px;background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.gate .msg{margin-top:14px;font-size:15px}
+.loading{padding:96px 0;text-align:center;color:var(--faint);font-size:15px}
+footer{margin-top:26px;font-size:13px;color:var(--faint);line-height:1.5}
+
+/* ---------- Phone ---------- */
+@media (max-width:760px){
+  body{padding:22px 16px 48px}
+  header{grid-template-columns:1fr;gap:18px}
+  .status{justify-content:space-between}
+  .stamp{text-align:left}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi{padding:26px 0 24px 18px}
+  .kpi:first-child{padding-left:0}
+  .kpi:nth-child(3){grid-column:1 / 3;border-left:0;border-top:1px solid var(--rule);padding-left:0}
+  .kpi .val{font-size:clamp(56px,17vw,80px);margin:14px 0 10px}
+  .kpi:nth-child(3) .val{font-size:clamp(64px,22vw,96px)}
+  section{padding:32px 0 36px}
+  .sec-head{margin-bottom:22px}
+  .sec-note{margin-left:0;width:100%}
+  .charts{grid-template-columns:1fr;gap:36px}
+  .plot{height:160px}
+  .b7 .bars,.b7 .xaxis{gap:6px}
+  .b30 .bars{gap:2px}
+  .bar .v{font-size:12px}
+  .devices{grid-template-columns:1fr;gap:18px;justify-items:start}
+  .dev-rows{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%}
+  .dev svg{width:24px;height:24px}
+  .dev b{font-size:22px}
+  .rows .inner{grid-template-columns:24px minmax(0,1fr) auto;gap:10px;padding:0 14px 0 12px}
+  .share{display:none}
+  .count{font-size:20px}
+  .key{grid-template-columns:1fr;gap:28px;justify-items:center}
+  .key > div:last-child{width:100%}
+  .donut{width:220px;height:220px}
+  .legend li{grid-template-columns:14px minmax(0,1fr) auto 44px;gap:10px}
+}
+@media (prefers-reduced-motion:reduce){.btn.busy svg{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="site" id="site">Website</div>
+      <h1>How the site is doing</h1>
+    </div>
+    <div class="status" id="status"></div>
+  </header>
+  <div id="banner"></div>
+  <div id="warn"></div>
+  <main id="app"><div class="loading">Loading the latest numbers…</div></main>
+  <footer>Counts come from Vercel Web Analytics. A “visitor” is one person on one device. The trend arrow compares daily visitors this week with the 7 days before. Each day runs midnight to midnight UTC (7&nbsp;pm Boston time in winter, 8&nbsp;pm in summer). This page refreshes itself every 5 minutes.</footer>
+</div>
+
+<script>
+(function(){
+  var REFRESH_MS = 5 * 60 * 1000;
+  var app = document.getElementById('app');
+  var params = new URLSearchParams(location.search);
+  var STORE = 'ownerDashKey';
+  var lastLoaded = 0, timer = null, busy = false, haveData = false;
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmt(n){ return Number(n || 0).toLocaleString('en-US'); }
+  function sum(a){ return a.reduce(function(s,d){ return s + (d.visitors || 0); }, 0); }
+  function getKey(){ try { return localStorage.getItem(STORE) || ''; } catch(e){ return ''; } }
+  function setKey(k){ try { if (k) localStorage.setItem(STORE, k); else localStorage.removeItem(STORE); } catch(e){} }
+
+  var ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9"/><path d="M13.5 2.5v3h-3"/></svg>';
+  var DEV_ICON = {
+    mobile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg>',
+    desktop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="4" width="19" height="12.5" rx="1.6"/><path d="M8.5 20.5h7M12 16.5v4"/></svg>',
+    tablet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="2.5" width="16" height="19" rx="2.2"/><path d="M11 18.5h2"/></svg>'
+  };
+  var DEV_NAME = { mobile:'Phone', desktop:'Computer', tablet:'Tablet' };
+
+  // ---------- Sample data (only with ?demo=1 or ?demo=empty; never shown otherwise) ----------
+  function sampleData(kind){
+    var now = new Date(), t0 = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    var v30 = kind === 'empty' ? new Array(30).fill(0)
+      : [12,15,9,14,18,21,16,11,13,19,22,24,17,15,20,26,23,19,25,28,22,18,24,21,33,29,41,30,44,37];
+    var trend30 = v30.map(function(v,i){ return { date:new Date(t0 - (29-i)*864e5).toISOString().slice(0,10), visitors:v }; });
+    var words = ['quote','contact','proposal','bid','estimate'];
+    if (kind === 'empty') return { ok:true, site:'example-site.com', generatedAt:now.toISOString(),
+      visitors:{ last7:0, last30:0, trend:trend30.slice(-7), trend30:trend30, devices:[] }, topPages:{ period:'30 days', rows:[] },
+      keyPages:{ period:'30 days', words:words, total:0, rows:[] } };
+    return { ok:true, site:'example-site.com', generatedAt:now.toISOString(),
+      visitors:{ last7:212, last30:598, trend:trend30.slice(-7), trend30:trend30,
+        devices:[ { type:'mobile', visitors:412 }, { type:'desktop', visitors:151 }, { type:'tablet', visitors:35 } ] },
+      topPages:{ period:'30 days', rows:[
+        { path:'/', visitors:341 }, { path:'/services', visitors:158 }, { path:'/get-a-quote', visitors:97 },
+        { path:'/about', visitors:58 }, { path:'/contact', visitors:41 } ] },
+      keyPages:{ period:'30 days', words:words, total:173, rows:[
+        { path:'/get-a-quote', hits:112 }, { path:'/contact', hits:46 }, { path:'/free-estimate', hits:15 } ] } };
+  }
+
+  // ---------- Small helpers ----------
+  function dayShort(iso){ return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { weekday:'short', timeZone:'UTC' }); }
+  function dayLong(iso){ return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', timeZone:'UTC' }); }
+  function monthDay(iso){ return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month:'short', day:'numeric', timeZone:'UTC' }); }
+  function niceMax(m){ if (m <= 5) return 5; var p = Math.pow(10, Math.floor(Math.log10(m))); var s = [1,2,2.5,5,10]; for (var i=0;i<s.length;i++){ if (s[i]*p >= m) return s[i]*p; } return 10*p; }
+  function callout(title, text){ return '<div class="callout"><strong>' + esc(title) + '</strong><p>' + esc(text) + '</p></div>'; }
+
+  // Mini area sparkline (SVG), scaled to its container width.
+  function sparkArea(series){
+    var w = 300, h = 44, vals = series.map(function(d){ return d.visitors || 0; });
+    var max = Math.max.apply(null, vals.concat([1])), n = vals.length;
+    if (!n) return '';
+    if (!vals.some(function(x){ return x; })) return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><path d="M0 ' + (h-2) + ' L' + w + ' ' + (h-2) + '" stroke="#3a3a41" stroke-width="2" stroke-dasharray="4 5" vector-effect="non-scaling-stroke"/></svg>';
+    var pts = vals.map(function(v,i){ return [ n === 1 ? w : i / (n-1) * w, h - 3 - (v / max) * (h - 8) ]; });
+    var line = pts.map(function(p,i){ return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+    var last = pts[pts.length-1];
+    return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb020" stop-opacity=".45"/><stop offset="1" stop-color="#ffb020" stop-opacity="0"/></linearGradient></defs>' +
+      '<path d="' + line + ' L' + w + ' ' + h + ' L0 ' + h + ' Z" fill="url(#sg)"/><path d="' + line + '" fill="none" stroke="#ffb020" stroke-width="2" vector-effect="non-scaling-stroke"/>' +
+      '<circle cx="' + last[0] + '" cy="' + last[1] + '" r="3.5" fill="#ffc94d"/></svg>';
+  }
+  function sparkBars(series){
+    var w = 300, h = 44, n = series.length, gap = 6, bw = (w - gap * (n - 1)) / n;
+    var max = Math.max.apply(null, series.map(function(d){ return d.visitors || 0; }).concat([1]));
+    return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' + series.map(function(d,i){
+      var v = d.visitors || 0, bh = v ? Math.max(3, v / max * h) : 2;
+      return '<rect x="' + (i * (bw + gap)).toFixed(1) + '" y="' + (h - bh).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="2" fill="' + (v ? (i === n-1 ? '#ffc94d' : '#ffb020') : '#3a3a41') + '" fill-opacity="' + (i === n-1 || !v ? 1 : .7) + '"/>';
+    }).join('') + '</svg>';
+  }
+
+  // Donut chart (SVG). segments: [{value, color, label}]
+  function donut(segments, centerBig, centerLabel, empty){
+    var r = 92, c = 2 * Math.PI * r, total = segments.reduce(function(s,x){ return s + x.value; }, 0);
+    var gap = segments.length > 1 ? 4 : 0, off = 0, arcs = '';
+    if (!empty && total > 0) {
+      segments.forEach(function(sg){
+        var len = Math.max(0, sg.value / total * c - gap);
+        arcs += '<circle r="' + r + '" cx="120" cy="120" fill="none" stroke="' + sg.color + '" stroke-width="26" stroke-dasharray="' + len.toFixed(2) + ' ' + (c - len).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 120 120)"><title>' + esc(sg.label + ': ' + fmt(sg.value)) + '</title></circle>';
+        off += sg.value / total * c;
+      });
+    } else {
+      arcs = '<circle r="' + r + '" cx="120" cy="120" fill="none" stroke="#26262b" stroke-width="26"/><circle r="' + r + '" cx="120" cy="120" fill="none" stroke="#3a3a41" stroke-width="2" stroke-dasharray="4 7"/>';
+    }
+    return '<div class="donut' + (empty ? ' empty' : '') + '"><svg viewBox="0 0 240 240" width="100%" height="100%" role="img" aria-label="' + esc(centerLabel) + '">' +
+      '<circle r="' + r + '" cx="120" cy="120" fill="none" stroke="#16161a" stroke-width="26"/>' + arcs + '</svg>' +
+      '<div class="center"><b class="tnum">' + esc(centerBig) + '</b><span>' + esc(centerLabel) + '</span></div></div>';
+  }
+
+  function barChart(series, cls, showValues){
+    var raw = Math.max.apply(null, series.map(function(d){ return d.visitors || 0; }).concat([0]));
+    var max = niceMax(Math.max(raw, 1));
+    var bars = series.map(function(d, i){
+      var today = i === series.length - 1, v = d.visitors || 0, h = v ? Math.max(2, v / max * 100) : 0;
+      return '<div class="bar' + (today ? ' today' : '') + (v ? '' : ' zero') + '" title="' + esc(dayLong(d.date) + ': ' + fmt(v) + ' visitors') + '">' +
+        (showValues ? '<span class="v">' + fmt(v) + '</span>' : '') + '<div class="fill" style="height:' + h + '%"></div></div>';
+    }).join('');
+    var extra = '';
+    if (!showValues) {
+      var avg = sum(series) / (series.length || 1);
+      extra = '<div class="grid" style="top:0"><b>' + fmt(max) + '</b></div><div class="grid" style="top:50%"><b>' + fmt(max/2) + '</b></div>' +
+        (avg > 0 ? '<div class="avg" style="bottom:' + (avg / max * 100) + '%"><b>avg ' + fmt(Math.round(avg)) + '/day</b></div>' : '');
+    }
+    return '<div class="' + cls + '"><div class="plot">' + extra + '<div class="bars">' + bars + '</div></div>';
+  }
+
+  // Thin segmented bar: share of each key page (amber shades), or an empty dashed track.
+  function keySpark(k){
+    var rows = (k && k.rows) || [], total = (k && k.total) || 0, hex = ['#ffb020','#c98a14','#8f6312','#5e430f','#4a4a52'];
+    if (!total) return '<svg class="spark" viewBox="0 0 300 44" preserveAspectRatio="none" aria-hidden="true"><rect x="1" y="30" width="298" height="10" rx="3" fill="#16161a" stroke="#3a3a41" stroke-dasharray="3 4"/></svg>';
+    var x = 0, out = '';
+    rows.slice(0,5).forEach(function(r,i){ var w = r.hits / total * 300; out += '<rect x="' + x.toFixed(1) + '" y="30" width="' + Math.max(0, w - 3).toFixed(1) + '" height="10" rx="2" fill="' + hex[i] + '"/>'; x += w; });
+    return '<svg class="spark" viewBox="0 0 300 44" preserveAspectRatio="none" aria-hidden="true">' + out + '</svg>';
+  }
+
+  // ---------- Headline strip ----------
+  function renderKpis(v, k){
+    var t30 = (v && v.trend30) || (v && v.trend) || [];
+    var t7 = t30.slice(-7), prev7 = t30.slice(-14, -7);
+    var a = sum(t7), b = sum(prev7), delta;
+    if (!a && !b) delta = '<span class="delta na">No visits yet</span>';
+    else if (!b) delta = '<span class="delta up">▲ New <small>no visits the week before</small></span>';
+    else {
+      var pct = Math.round((a - b) / b * 100);
+      delta = pct === 0 ? '<span class="delta flat">● Same <small>as the 7 days before</small></span>'
+        : '<span class="delta ' + (pct > 0 ? 'up' : 'down') + '">' + (pct > 0 ? '▲ ' : '▼ ') + Math.abs(pct) + '% <small>vs the 7 days before</small></span>';
+    }
+    var keyTotal = (k && k.total) || 0;
+    return '<div class="kpis">' +
+      '<div class="kpi"><div class="lbl">Visitors · 7 days</div><div class="val tnum">' + fmt(v && v.last7) + '</div>' + delta + sparkBars(t7.length ? t7 : [{visitors:0}]) + '</div>' +
+      '<div class="kpi"><div class="lbl">Visitors · 30 days</div><div class="val tnum">' + fmt(v && v.last30) + '</div><span class="delta na">' + (sum(t30) ? 'About ' + fmt(Math.round(sum(t30) / (t30.length || 1))) + ' a day' : 'No visits yet') + '</span>' + sparkArea(t30.length ? t30 : [{visitors:0},{visitors:0}]) + '</div>' +
+      '<div class="kpi' + (keyTotal ? ' hot' : '') + '"><div class="lbl">Key page hits · 30 days</div><div class="val tnum">' + fmt(keyTotal) + '</div><span class="delta na">' + (keyTotal ? 'People looking to hire you' : 'None yet') + '</span>' +
+        keySpark(k) + '</div>' +
+      '</div>';
+  }
+
+  // ---------- 01 Visitors ----------
+  function renderVisitors(v){
+    var head = '<section><div class="sec-head"><span class="sec-no">01</span><h2>Visitors</h2><span class="sec-note">People who came to the site, per day</span></div>';
+    var t7 = (v && v.trend) || [], t30 = (v && v.trend30) || t7;
+    if (!(v && (v.last7 || v.last30 || sum(t30)))) {
+      return head + callout('No visitors counted yet', 'The charts fill in automatically as soon as people visit the site. Nothing is broken; there is simply nothing to count yet.') + '</section>';
+    }
+    var peak = function(a){ return Math.max.apply(null, a.map(function(d){ return d.visitors || 0; })); };
+    var x7 = t7.map(function(d,i){ var last = i === t7.length-1; return '<span' + (last ? ' class="today"' : '') + '>' + (last ? 'Today' : esc(dayShort(d.date))) + '</span>'; }).join('');
+    var x30 = '<span>' + esc(monthDay(t30[0].date)) + '</span><span>' + esc(monthDay(t30[Math.floor(t30.length/2)].date)) + '</span><span class="today">Today</span>';
+    var c7 = '<div><div class="chart-title"><span>Last 7 days</span><em>Busiest day: ' + fmt(peak(t7)) + '</em></div>' + barChart(t7, 'b7', true) + '<div class="xaxis">' + x7 + '</div></div></div>';
+    var c30 = '<div><div class="chart-title"><span>Last 30 days</span><em>Busiest day: ' + fmt(peak(t30)) + '</em></div>' + barChart(t30, 'b30', false) + '<div class="xaxis">' + x30 + '</div></div></div>';
+
+    var devs = (v && v.devices) || [], devHtml = '';
+    var dTotal = devs.reduce(function(s,d){ return s + d.visitors; }, 0);
+    if (dTotal > 0) {
+      var colors = ['#ffb020','#8f6312','#4a4a52'];
+      var segs = devs.slice(0,3).map(function(d,i){ return { value:d.visitors, color:colors[i], label:DEV_NAME[d.type] || d.type }; });
+      var topPct = Math.round(devs[0].visitors / dTotal * 100);
+      devHtml = '<div class="devices"><div style="width:150px;height:150px">' + donut(segs, topPct + '%', DEV_NAME[devs[0].type] || devs[0].type, false).replace('class="donut"', 'class="donut" style="width:150px;height:150px"').replace('<b class="tnum">', '<b class="tnum" style="font-size:36px">') + '</div>' +
+        '<div><div class="dev-title">What people visit on</div><div class="dev-sub">Share of visitors, last 30 days</div><div class="dev-rows">' +
+        devs.slice(0,3).map(function(d,i){ return '<div class="dev' + (i === 0 ? ' top' : '') + '">' + (DEV_ICON[d.type] || DEV_ICON.desktop) + '<div><b class="tnum" style="color:' + colors[i].replace('#4a4a52','#a8a8b0') + '">' + Math.round(d.visitors / dTotal * 100) + '%</b><span>' + esc(DEV_NAME[d.type] || d.type) + '</span></div></div>'; }).join('') +
+        '</div></div></div>';
+    }
+    return head + '<div class="charts" role="img" aria-label="Visitors per day, last 7 and last 30 days">' + c7 + c30 + '</div>' + devHtml + '</section>';
+  }
+
+  // ---------- 02 Top pages ----------
+  function renderTop(t){
+    var rows = (t && t.rows) || [];
+    var head = '<section><div class="sec-head"><span class="sec-no">02</span><h2>Most visited pages</h2><span class="sec-note">Top 5 by visitors, last ' + esc((t && t.period) || '30 days') + '</span></div>';
+    if (!rows.length) return head + callout('No page visits yet', 'Your five busiest pages will be ranked here once people start visiting.') + '</section>';
+    var max = rows[0].visitors || 1, tot = rows.reduce(function(s,r){ return s + r.visitors; }, 0) || 1;
+    return head + '<ul class="rows">' + rows.map(function(r, i){
+      var label = r.path === '/' ? '/<small>home page</small>' : esc(r.path);
+      return '<li title="' + esc(r.path + ': ' + fmt(r.visitors) + ' visitors') + '"><div class="fillbar" style="width:' + Math.max(3, r.visitors / max * 100) + '%"></div>' +
+        '<div class="inner"><span class="rank">' + String(i+1).padStart(2,'0') + '</span><span class="path">' + label + '</span>' +
+        '<span class="share">' + Math.round(r.visitors / tot * 100) + '% of top 5</span><span class="count tnum">' + fmt(r.visitors) + '</span></div></li>';
+    }).join('') + '</ul></section>';
+  }
+
+  // ---------- 03 Key pages ----------
+  function renderKey(k){
+    var words = (k && k.words) || [], rows = (k && k.rows) || [], period = (k && k.period) || '30 days';
+    var head = '<section><div class="sec-head"><span class="sec-no">03</span><h2>Key page hits</h2><span class="sec-note">Pages where people ask for work, last ' + esc(period) + '</span></div>';
+    var wordLine = '<p class="words">Counts every page whose address contains ' + words.map(function(w){ return '<code>' + esc(w) + '</code>'; }).join(', ') + '.</p>';
+    var list = words.length > 1 ? words.slice(0,-1).join(', ') + ' or ' + words[words.length-1] : (words[0] || 'key');
+    if (!k || !k.total) {
+      return head + '<div class="key">' + donut([], '0', 'key page hits', true) +
+        '<div class="empty-msg"><strong>No key page hits yet</strong><p>Nobody has opened a ' + esc(list) + ' page in the last ' + esc(period) + '. The ring fills in amber the moment someone does.</p></div></div>' + wordLine + '</section>';
+    }
+    var shades = ['var(--a1)','var(--a2)','var(--a3)','var(--a4)'], hex = ['#ffb020','#c98a14','#8f6312','#5e430f'];
+    var shown = rows.slice(0, 4);
+    if (rows.length > 4) shown.push({ path:'Other matching pages', hits: rows.slice(4).reduce(function(s,r){ return s + r.hits; }, 0), other:true });
+    var segs = shown.map(function(r,i){ return { value:r.hits, color: r.other ? '#4a4a52' : hex[i], label:r.path }; });
+    var legend = '<ul class="legend">' + shown.map(function(r,i){
+      return '<li><span class="sw" style="background:' + (r.other ? 'var(--a5)' : shades[i]) + '"></span><span class="path">' + esc(r.path) + '</span><span class="n tnum">' + fmt(r.hits) + '</span><span class="pct">' + Math.round(r.hits / k.total * 100) + '%</span></li>'; }).join('') + '</ul>';
+    return head + '<div class="key">' + donut(segs, fmt(k.total), 'visits to key pages', false) + '<div>' + legend + '</div></div>' + wordLine + '</section>';
+  }
+
+  // ---------- Status: "Updated X min ago" ----------
+  function ago(){
+    if (!lastLoaded) return '';
+    var m = Math.floor((Date.now() - lastLoaded + 1000) / 60000);
+    return m < 1 ? 'Updated just now' : m === 1 ? 'Updated 1 min ago' : m < 60 ? 'Updated ' + m + ' min ago' : 'Updated ' + Math.floor(m/60) + ' hr ago';
+  }
+  function renderStatus(){
+    var s = document.getElementById('status');
+    if (!haveData) { s.innerHTML = ''; return; }
+    s.innerHTML = '<div class="stamp"><b><span class="dot"></span><span id="ago">' + esc(ago()) + '</span></b><span class="auto">Auto-refreshes every 5 min</span></div>' +
+      '<button class="btn' + (busy ? ' busy' : '') + '" id="refresh"' + (busy ? ' disabled' : '') + '>' + ICON + (busy ? 'Refreshing' : 'Refresh') + '</button>';
+    document.getElementById('refresh').onclick = function(){ load(true); };
+  }
+
+  function render(data, isSample){
+    document.getElementById('site').textContent = data.site || 'Website';
+    document.getElementById('banner').innerHTML = isSample ? '<div class="banner">SAMPLE DATA — made-up numbers to show the layout. Not real visits.</div>' : '';
+    document.getElementById('warn').innerHTML = '';
+    app.innerHTML = renderKpis(data.visitors, data.keyPages) + renderVisitors(data.visitors) + renderTop(data.topPages) + renderKey(data.keyPages);
+    haveData = true;
+    lastLoaded = data.generatedAt ? Math.min(Date.now(), new Date(data.generatedAt).getTime()) : Date.now();
+  }
+
+  function gate(message, isError){
+    haveData = false; renderStatus();
+    app.innerHTML = '<div class="gate"><h2>Enter your dashboard key</h2>' +
+      '<p>This page is private. Your key came with your link. You only need to enter it once on this device.</p>' +
+      '<form id="kf"><input id="k" type="password" autocomplete="current-password" placeholder="Dashboard key" aria-label="Dashboard key">' +
+      '<button class="btn" type="submit">Open dashboard</button></form>' +
+      (message ? '<p class="msg' + (isError ? ' error' : '') + '">' + esc(message) + '</p>' : '') + '</div>';
+    document.getElementById('kf').onsubmit = function(e){ e.preventDefault(); setKey(document.getElementById('k').value.trim()); load(true); };
+  }
+
+  function failed(msg){
+    if (haveData) { document.getElementById('warn').innerHTML = '<p class="warn">Couldn’t refresh just now: ' + esc(msg) + ' Showing the last numbers we got.</p>'; return; }
+    app.innerHTML = '<section>' + callout('Can’t load the numbers right now', msg) + '</section>';
+  }
+
+  function schedule(){ clearTimeout(timer); timer = setTimeout(function(){ load(false); }, REFRESH_MS); }
+
+  function load(manual){
+    var demo = params.get('demo');
+    if (demo) {
+      busy = true; renderStatus();
+      setTimeout(function(){ busy = false; render(sampleData(demo === 'empty' ? 'empty' : 'full'), true); renderStatus(); schedule(); }, manual ? 400 : 0);
+      return;
+    }
+    var urlKey = params.get('key');
+    if (urlKey) { setKey(urlKey); params.delete('key'); history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : '')); }
+    var key = getKey();
+    if (!key) { gate(); return; }
+
+    busy = true; renderStatus();
+    fetch('/api/owner-analytics', { headers: { 'x-dashboard-key': key }, cache: 'no-store' })
+      .then(function(r){ return r.json().catch(function(){ return { ok:false, message:'Unexpected reply from the server.' }; }).then(function(j){ j._status = r.status; return j; }); })
+      .then(function(j){
+        busy = false;
+        if (j.ok) { render(j, false); renderStatus(); schedule(); return; }
+        if (j._status === 401) { setKey(''); clearTimeout(timer); gate(j.message || 'That key did not work.', true); return; }
+        failed(j.message || 'Please try again in a minute.'); renderStatus(); schedule();
+      })
+      .catch(function(){ busy = false; failed('Check your internet connection.'); renderStatus(); schedule(); });
+  }
+
+  setInterval(function(){ var el = document.getElementById('ago'); if (el) el.textContent = ago(); }, 15000);
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible' && haveData && Date.now() - lastLoaded >= REFRESH_MS) load(false);
+  });
+
+  load(false);
+})();
+</script>
+</body>
+</html>
