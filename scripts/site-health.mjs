@@ -75,7 +75,7 @@ if ((problems.length || process.env.ALWAYS_EMAIL === '1') && process.env.RESEND_
       text: report,
     }),
   });
-  console.log('Email status', r.status);
+  console.log('Email status', r.status, r.ok ? '' : (await r.text()).slice(0, 300));
   if (!r.ok) process.exitCode = 1;
 }
 if (problems.length) process.exitCode = 1;
