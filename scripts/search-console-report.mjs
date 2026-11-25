@@ -34,17 +34,17 @@ try {
   if (mode === 'indexed') {
     const sm = await (await fetch(`${SITE}sitemap.xml`)).text();
     const urls = [...sm.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].trim());
-    lines.push(`Search Console indexing report, ${new Date().toISOString().slice(0, 10)}`, `Property ${SITE}, ${urls.length} sitemap URLs. Google's index version only; not a live test.`, '');
-    let notIndexed = 0;
+    lines.push(`Search Console indexing report, ${new Date().toISOString().slice(0, 10)}`, `Signed in as ${key.client_email}`, `Property ${SITE}, ${urls.length} sitemap URLs. Google's index version only; not a live test.`, '');
+    let notIndexed = 0, errors = 0;
     for (const u of urls) {
       const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect', { method: 'POST', headers: auth, body: JSON.stringify({ inspectionUrl: u, siteUrl: SITE }) });
       const j = await r.json();
-      if (!r.ok) { lines.push(`${u}: ERROR ${r.status} ${j.error?.message || ''}`); failed = true; continue; }
+      if (!r.ok) { lines.push(`${u}: ERROR ${r.status} ${j.error?.message || ''}`); failed = true; errors++; continue; }
       const s = j.inspectionResult?.indexStatusResult || {};
       if (s.verdict !== 'PASS') notIndexed++;
       lines.push(`${s.verdict === 'PASS' ? 'OK ' : 'CHECK'} ${u}\n   ${s.coverageState || 'no state'} | last crawl ${s.lastCrawlTime || 'never'} | canonical ${s.googleCanonical || 'n/a'}`);
     }
-    lines.splice(2, 0, `${urls.length - notIndexed} of ${urls.length} pages show verdict PASS.`);
+    lines.splice(3, 0, `${urls.length - notIndexed - errors} of ${urls.length} pages show verdict PASS.${errors ? ` ${errors} could not be checked (see errors below).` : ''}`);
   } else {
     const d = new Date(); const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 0)); const start = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 1));
     const f = (x) => x.toISOString().slice(0, 10);
@@ -66,6 +66,6 @@ const report = lines.join('\n');
 console.log(report);
 if (process.env.RESEND_API_KEY && process.env.REPORT_TO_EMAIL) {
   const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: process.env.REPORT_FROM_EMAIL, to: [process.env.REPORT_TO_EMAIL], subject: `${failed ? 'PROBLEM: ' : ''}MJ Moving ${mode === 'indexed' ? 'weekly indexing' : 'monthly performance'} report`, text: report }) });
-  console.log('Email status', r.status);
+  console.log('Email status', r.status, r.ok ? '' : (await r.text()).slice(0, 300));
 }
 if (failed) process.exitCode = 1;
