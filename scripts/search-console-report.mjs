@@ -34,7 +34,7 @@ try {
   if (mode === 'indexed') {
     const sm = await (await fetch(`${SITE}sitemap.xml`)).text();
     const urls = [...sm.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].trim());
-    lines.push(`Search Console indexing report, ${new Date().toISOString().slice(0, 10)}`, `Property ${SITE}, ${urls.length} sitemap URLs. Google's index version only; not a live test.`, '');
+    lines.push(`Search Console indexing report, ${new Date().toISOString().slice(0, 10)}`, `Signed in as ${key.client_email}`, `Property ${SITE}, ${urls.length} sitemap URLs. Google's index version only; not a live test.`, '');
     let notIndexed = 0, errors = 0;
     for (const u of urls) {
       const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect', { method: 'POST', headers: auth, body: JSON.stringify({ inspectionUrl: u, siteUrl: SITE }) });
@@ -44,7 +44,7 @@ try {
       if (s.verdict !== 'PASS') notIndexed++;
       lines.push(`${s.verdict === 'PASS' ? 'OK ' : 'CHECK'} ${u}\n   ${s.coverageState || 'no state'} | last crawl ${s.lastCrawlTime || 'never'} | canonical ${s.googleCanonical || 'n/a'}`);
     }
-    lines.splice(2, 0, `${urls.length - notIndexed - errors} of ${urls.length} pages show verdict PASS.${errors ? ` ${errors} could not be checked (see errors below).` : ''}`);
+    lines.splice(3, 0, `${urls.length - notIndexed - errors} of ${urls.length} pages show verdict PASS.${errors ? ` ${errors} could not be checked (see errors below).` : ''}`);
   } else {
     const d = new Date(); const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 0)); const start = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 1));
     const f = (x) => x.toISOString().slice(0, 10);
