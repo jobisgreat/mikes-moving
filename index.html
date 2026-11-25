@@ -56,6 +56,25 @@
   --tape:#F2C232; --tape-ink:#2A2108; --kraft:#CFA474; --kraft-soft:#2A2418;
   --ok:#4FC28A; --field:#0E1526; --err:#F59E6B; color-scheme:dark}
 
+
+/* Google reviews strip */
+.rv-band{background:var(--pad-hero);border-block:0;color:#fff;overflow:hidden}
+.rv-band .tag{color:var(--tape)}
+.rv-band .tag b{color:#fff}
+.rv-band h2{color:#fff;font-size:clamp(2rem,6vw,3rem)}
+.rv-band .sec-head{margin-bottom:28px}
+.rv-strip{overflow:hidden;min-height:300px;padding:6px 0 10px}
+.rv-track{display:flex;align-items:flex-start;gap:20px;width:max-content;padding:4px 0;animation:rv-scroll 70s linear infinite;will-change:transform;-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}
+.rv-strip:hover .rv-track,.rv-strip:focus-within .rv-track,.rv-strip:focus .rv-track{animation-play-state:paused}
+.rv{position:relative;flex:none;width:min(380px,84vw);margin:0;padding:26px 24px 22px;background:#fff;color:#0E1A31;border-radius:16px;border-top:6px solid var(--tape);box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:12px}
+.rv-stars{color:#E8A900;letter-spacing:3px;font-size:1.7rem;line-height:1}
+.rv-price{margin:0;align-self:flex-start;background:var(--tape);color:var(--tape-ink);font-family:var(--mono);font-size:.78rem;font-weight:700;padding:5px 11px;border-radius:999px}
+.rv blockquote{position:relative;margin:0;color:#0E1A31;line-height:1.55;font-size:1rem}
+.rv blockquote::before{content:"\201C";display:block;font-family:Georgia,serif;font-size:4rem;line-height:.6;height:28px;color:var(--pad)}
+.rv figcaption{display:flex;align-items:center;gap:12px;margin-top:6px;padding-top:14px;border-top:1px solid #D8DEE8;font-weight:700;color:#0E1A31}
+.rv-av{flex:none;width:40px;height:40px;border-radius:50%;background:var(--pad-hero);color:#fff;display:grid;place-items:center;font-weight:800}
+@keyframes rv-scroll{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-50% - 10px),0,0)}}
+@media (prefers-reduced-motion:reduce){.rv-strip{overflow-x:auto;-webkit-overflow-scrolling:touch}.rv-track{animation:none;padding-inline:20px}.rv[aria-hidden="true"]{display:none}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
@@ -908,6 +927,18 @@ a.tel,a.mail{padding-block:8px}
     </div>
   </section>
 
+  <section class="block rv-band" id="reviews-sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="tag">Google reviews</span>
+        <h2>What customers say</h2>
+      </div>
+    </div>
+    <div class="rv-strip" role="region" aria-label="Customer reviews from Google" tabindex="0">
+      <div class="rv-track"><figure class="rv"><div class="rv-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote>I called a few companies and I didn’t get a call back. I called MJ Moving they answered right away. They were great fast efficient. Their prices were very reasonable. This company went above and beyond for my family. I will recommend MJ Moving to all my family and friends.</blockquote><figcaption><span class="rv-av" aria-hidden="true">E</span>Eric Dempsey</figcaption></figure><figure class="rv"><div class="rv-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><p class="rv-price">Great price · $2,000–2,500</p><blockquote>They were wonderful to work with!! Would highly recommend!</blockquote><figcaption><span class="rv-av" aria-hidden="true">A</span>Amy Goguen</figcaption></figure><figure class="rv"><div class="rv-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote>If you’re looking for a moving company that takes care of you from start to finish, MJ Moving Co is the one. Mike and his team at MJ were excellent the whole way through. Pricing was clear and upfront with no surprises and they even found ways to save me some $$$! …</blockquote><figcaption><span class="rv-av" aria-hidden="true">L</span>Luke Zeccola</figcaption></figure><figure class="rv"><div class="rv-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><p class="rv-price">Great price · $3,500–4,000</p><blockquote>If you’re trying to decide which moving company to take care of you throughout the entirety of the process, look no further. I was beyond impressed with the service of Mike and his team at MJ— there were no surprises. Prices were communicated professionally and proactively, they showed up when they said they would, and even found ways to save me money. …</blockquote><figcaption><span class="rv-av" aria-hidden="true">B</span>Brendan Devlin</figcaption></figure><figure class="rv" aria-hidden="true"><div class="rv-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote>I called a few companies and I didn’t get a call back. I called MJ Moving they answered right away. They were great fast efficient. Their prices were very reasonable. This company went above and beyond for my family. I will recommend MJ Moving to all my family and friends.</blockquote><figcaption><span class="rv-av" aria-hidden="true">E</span>Eric Dempsey</figcaption></figure><figure class="rv" aria-hidden="true"><div class="rv-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><p class="rv-price">Great price · $2,000–2,500</p><blockquote>They were wonderful to work with!! Would highly recommend!</blockquote><figcaption><span class="rv-av" aria-hidden="true">A</span>Amy Goguen</figcaption></figure><figure class="rv" aria-hidden="true"><div class="rv-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote>If you’re looking for a moving company that takes care of you from start to finish, MJ Moving Co is the one. Mike and his team at MJ were excellent the whole way through. Pricing was clear and upfront with no surprises and they even found ways to save me some $$$! …</blockquote><figcaption><span class="rv-av" aria-hidden="true">L</span>Luke Zeccola</figcaption></figure><figure class="rv" aria-hidden="true"><div class="rv-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><p class="rv-price">Great price · $3,500–4,000</p><blockquote>If you’re trying to decide which moving company to take care of you throughout the entirety of the process, look no further. I was beyond impressed with the service of Mike and his team at MJ— there were no surprises. Prices were communicated professionally and proactively, they showed up when they said they would, and even found ways to save me money. …</blockquote><figcaption><span class="rv-av" aria-hidden="true">B</span>Brendan Devlin</figcaption></figure></div>
+    </div>
+  </section>
+
   <section class="block alt">
     <div class="wrap">
       <div class="sec-head">
@@ -1003,7 +1034,7 @@ a.tel,a.mail{padding-block:8px}
       <p>We also keep the whole job under one roof. Packing, moving, junk removal, storage and TV mounting come from the same company, so you deal with one crew and one point of contact from start to finish.</p>
       <div class="callout"><strong>Our standard on every job:</strong> protect the home, wrap the furniture, place every item where you want it, and leave nothing behind.</div>
     </div>
-    <figure class="photo-real founder"><img src="photo-mike-v3.jpg" width="900" height="1116" alt="Mike Bourque, founder of MJ Moving Company" loading="lazy"><figcaption>Mike Bourque · Founder</figcaption></figure>
+    <figure class="photo-real founder"><img src="photo-mike-v3.jpg" width="900" height="1116" alt="Mike Bourque, founder of MJ Moving Company" loading="lazy"><figcaption><span class="rv-av" aria-hidden="true">M</span>Mike Bourque · Founder</figcaption></figure>
   </div></section>
 </div>
 
