@@ -7,7 +7,7 @@
 import { createSign } from 'node:crypto';
 const mode = process.argv[2] || 'indexed';
 const SITE = process.env.GSC_SITE_URL || 'https://www.mjmovingco.com/';
-const key = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '{}');
+let key = {};
 const b64 = (o) => Buffer.from(typeof o === 'string' ? o : JSON.stringify(o)).toString('base64url');
 
 async function token() {
@@ -24,6 +24,11 @@ async function token() {
 let lines = [];
 let failed = false;
 try {
+  const raw = (process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '').replace(/^\uFEFF/, '').replace(/[\u201C\u201D]/g, '"').trim();
+  try { key = JSON.parse(raw); } catch {
+    // Safe diagnostics: length and the character codes of the first 4 characters only, never the secret text.
+    throw new Error(`The GOOGLE_SERVICE_ACCOUNT_JSON secret in GitHub is not valid JSON. Re-paste the whole key file, from the first { to the last }. Secret length ${raw.length} characters; first 4 character codes: ${[...raw.slice(0, 4)].map((c) => c.charCodeAt(0)).join(', ') || 'none'}.`);
+  }
   const at = await token();
   const auth = { authorization: `Bearer ${at}`, 'content-type': 'application/json' };
   if (mode === 'indexed') {
