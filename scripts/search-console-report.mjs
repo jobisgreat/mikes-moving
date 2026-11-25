@@ -24,7 +24,11 @@ async function token() {
 let lines = [];
 let failed = false;
 try {
-  try { key = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON || ''); } catch { throw new Error('The GOOGLE_SERVICE_ACCOUNT_JSON secret in GitHub is not valid JSON. Re-paste the whole key file, from the first { to the last }.'); }
+  const raw = (process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '').replace(/^\uFEFF/, '').replace(/[\u201C\u201D]/g, '"').trim();
+  try { key = JSON.parse(raw); } catch {
+    // Safe diagnostics: length and the character codes of the first 4 characters only, never the secret text.
+    throw new Error(`The GOOGLE_SERVICE_ACCOUNT_JSON secret in GitHub is not valid JSON. Re-paste the whole key file, from the first { to the last }. Secret length ${raw.length} characters; first 4 character codes: ${[...raw.slice(0, 4)].map((c) => c.charCodeAt(0)).join(', ') || 'none'}.`);
+  }
   const at = await token();
   const auth = { authorization: `Bearer ${at}`, 'content-type': 'application/json' };
   if (mode === 'indexed') {
