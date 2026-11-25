@@ -2,6 +2,7 @@
 // from the content already in index.html, so wording stays in one place.
 // Run: node scripts/build-pages.mjs   (from the repo root)
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 
 const SITE = 'https://www.mjmovingco.com';
 const src = readFileSync('index.html', 'utf8');
@@ -229,14 +230,26 @@ out.push(page({
   ld: [breadcrumbLd([['Home', '/'], ['Contact', '/contact']])]
 }));
 
-/* ---------- sitemap ---------- */
+/* ---------- sitemap ----------
+   lastmod only moves when a page's real content changes. Each page's SHA-256 is kept in
+   sitemap-state.json; if the hash matches, the old date is kept, if not, today's date is used.
+   Run this script (node scripts/build-pages.mjs) and commit sitemap.xml + sitemap-state.json. */
 const today = new Date().toISOString().slice(0, 10);
-const urls = ['/', ...out.map(o => o.path)];
+const entries = [{ path: '/', file: 'index.html' }, ...out];
+let state = {};
+try { state = JSON.parse(readFileSync('sitemap-state.json', 'utf8')); } catch {}
+const nextState = {};
+for (const e of entries) {
+  const hash = createHash('sha256').update(readFileSync(e.file)).digest('hex');
+  const prev = state[e.path];
+  nextState[e.path] = { hash, lastmod: prev && prev.hash === hash ? prev.lastmod : today };
+}
+writeFileSync('sitemap-state.json', JSON.stringify(nextState, null, 2) + '\n');
 writeFileSync('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u => `  <url>
-    <loc>${SITE}${u === '/' ? '/' : u}</loc>
-    <lastmod>${today}</lastmod>
+${entries.map(e => `  <url>
+    <loc>${SITE}${e.path}</loc>
+    <lastmod>${nextState[e.path].lastmod}</lastmod>
   </url>`).join('\n')}
 </urlset>
 `);

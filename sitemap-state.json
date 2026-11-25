@@ -1,0 +1,74 @@
+{
+  "/": {
+    "hash": "175f7e957b27d0995ecb5521eb711afc80d4379c827a8aa7b295b091da0ce6d4",
+    "lastmod": "2026-11-25"
+  },
+  "/services/local-moving": {
+    "hash": "d590b43b4bd8393c9b85a3bd637538492cbeb4f504b3069a042124d0190b5873",
+    "lastmod": "2026-11-25"
+  },
+  "/services/packing-and-unpacking": {
+    "hash": "8ced291d046ab5f63dd5e1f9e2d3eabbaf932268745a50ed3f9196b41fc1d8f1",
+    "lastmod": "2026-11-25"
+  },
+  "/services/junk-removal": {
+    "hash": "84a5e9905c10a6e67b4ba6b10a244595e4e6240161d0b73bb24d5cf037a69ca0",
+    "lastmod": "2026-11-25"
+  },
+  "/services/storage": {
+    "hash": "67dd55cbdfe57a240754aad0ee58c7152cc2ef634f9940c6825dd1d21d300a50",
+    "lastmod": "2026-11-25"
+  },
+  "/services/tv-mounting": {
+    "hash": "0bbdadf8236744df7f14ebbbb934d0151dcd7e5a75252195cc2e5d1d7cea51f8",
+    "lastmod": "2026-11-25"
+  },
+  "/services/moving-supplies": {
+    "hash": "97e20cab0079a88b5c01e574d6aa34a5940302f3eaef057c99b756baebe52a29",
+    "lastmod": "2026-11-25"
+  },
+  "/services": {
+    "hash": "19ef979b9675a8b9f0135ded1cc4a3e397e59d63776abd9a3fc0a5b66e821835",
+    "lastmod": "2026-11-25"
+  },
+  "/service-area": {
+    "hash": "2651278455751b77a9e1bafa240d3c2e6cefe8aed6337eb052c2538c96fa54a2",
+    "lastmod": "2026-11-25"
+  },
+  "/service-area/greater-boston": {
+    "hash": "6cca51f21a81070df35729c8097c1bfe8ef72347f7e62feac310f6c889bf52b3",
+    "lastmod": "2026-11-25"
+  },
+  "/service-area/north-shore": {
+    "hash": "8fa6d1eca4be69576ba26603bf729a2370eb2f933505fc61036f94846c5809ba",
+    "lastmod": "2026-11-25"
+  },
+  "/service-area/south-shore-south-coast": {
+    "hash": "07ded104448e2f564063146eb914e73fdebb8a3bec32f518c2d8c4ccf2511b26",
+    "lastmod": "2026-11-25"
+  },
+  "/service-area/cape-cod": {
+    "hash": "9e745a05fe017c9f88297fdef73e7e1014a23c8ecb982c0a4d4c6343aa1fb3b4",
+    "lastmod": "2026-11-25"
+  },
+  "/service-area/central-ma": {
+    "hash": "8ff7c5c4ba717a5af15d2f672f95778c1e416edeb928d43dbd9f49ae190cbbbc",
+    "lastmod": "2026-11-25"
+  },
+  "/service-area/western-ma": {
+    "hash": "b19dd49cb108cb28d45d71fcad8a775ee021f05e9b99068f23c29db47664f9ff",
+    "lastmod": "2026-11-25"
+  },
+  "/about": {
+    "hash": "8e77884c1e4a459475a02efbfb16b7666bb7811c65bb238dc19c698da8dec105",
+    "lastmod": "2026-11-25"
+  },
+  "/faq": {
+    "hash": "ea96993d9455673f7e4642a07576e1f08041f7380d8fd14750531c44a4d68c8e",
+    "lastmod": "2026-11-25"
+  },
+  "/contact": {
+    "hash": "23dbcd575d3371db0531c4ba673afdcaefffc9517210673be5bb8622cf66984d",
+    "lastmod": "2026-11-25"
+  }
+}

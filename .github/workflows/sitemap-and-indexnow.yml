@@ -1,0 +1,42 @@
+name: Sitemap and IndexNow
+
+on:
+  # 1) After every push to main: rebuild pages + sitemap and commit them if anything changed.
+  push:
+    branches: [main]
+  # 2) After Vercel finishes a production deploy: tell IndexNow search engines what changed.
+  deployment_status:
+
+permissions:
+  contents: write
+
+jobs:
+  sitemap:
+    if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/build-pages.mjs
+      - name: Commit sitemap if it changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Update sitemap dates"
+            git push
+          fi
+
+  indexnow:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/indexnow.mjs
