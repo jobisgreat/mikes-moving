@@ -770,13 +770,13 @@ a.tel,a.mail{padding-block:8px}
     </a>
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mainNav">Menu</button>
     <nav class="main" id="mainNav" aria-label="Main">
-      <a href="#services" data-nav="services">Services</a>
-      <a href="#areas" data-nav="areas">Service area</a>
-      <a href="#about" data-nav="about">About us</a>
+      <a href="/services" data-nav="services">Services</a>
+      <a href="/service-area" data-nav="areas">Service area</a>
+      <a href="/about" data-nav="about">About us</a>
       <div class="dd" id="resDD">
         <button type="button" class="dd-btn" id="resBtn" aria-expanded="false" aria-controls="resMenu" data-group="resources">Resources<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div class="dd-menu" id="resMenu">
-          <a href="#faq" data-nav="faq"><b>FAQs</b><span>Booking, move day and pricing</span></a>
+          <a href="/faq" data-nav="faq"><b>FAQs</b><span>Booking, move day and pricing</span></a>
           <a href="#claims" data-nav="claims"><b>File a claim or complaint</b><span>Damage, missing items or service issues</span></a>
           <a href="#referral" data-nav="referral"><b>Referral program</b><span>Earn for every booked move</span></a>
           <a href="#privacy" data-nav="privacy"><b>Privacy policy</b><span>How we use your information</span></a>
@@ -784,7 +784,7 @@ a.tel,a.mail{padding-block:8px}
         </div>
       </div>
       <a href="#referral" data-nav="referral" class="nav-ref">Referral program</a>
-      <a href="#contact" data-nav="contact">Contact</a>
+      <a href="/contact" data-nav="contact">Contact</a>
     </nav>
     <a class="phone head-cta" href="tel:+15082156322"><em>●</em>24/7 · 508-215-6322</a>
     <a class="btn head-cta" href="#quote">Free quote</a>
@@ -952,7 +952,7 @@ a.tel,a.mail{padding-block:8px}
         <div>
           <div class="amap-tabs" role="tablist" id="amapTabs" aria-label="Regions"></div>
           <div class="amap-panel" id="amapPanel" role="tabpanel" aria-live="polite"></div>
-          <p class="amap-more" style="margin-top:20px"><a class="btn ghost" href="#areas">See every town we serve</a></p>
+          <p class="amap-more" style="margin-top:20px"><a class="btn ghost" href="/service-area">See every town we serve</a></p>
         </div>
       </div>
       </div>
@@ -966,7 +966,7 @@ a.tel,a.mail{padding-block:8px}
         <h2>Before you book</h2>
       </div>
       <div class="faq" id="faqHome"></div>
-      <p style="margin-top:22px"><a class="faq-more" href="#faq">All questions →</a></p>
+      <p style="margin-top:22px"><a class="faq-more" href="/faq">All questions →</a></p>
     </div>
   </section>
 </div>
@@ -1158,7 +1158,7 @@ a.tel,a.mail{padding-block:8px}
       <div class="panel"><span class="tag">Call or text</span><p class="phone" style="font-size:1.4rem"><a class="tel" href="tel:+15082156322">508-215-6322</a></p><a class="btn ghost" href="tel:+15082156322" style="justify-self:start">Call now</a></div>
       <div class="panel"><span class="tag">Email</span><p style="font-weight:700;overflow-wrap:anywhere"><a class="mail" href="mailto:mike@mjmovingco.com">mike@mjmovingco.com</a></p><button class="btn ghost" type="button" id="copyEmail" style="justify-self:start">Copy email</button></div>
       <div class="panel"><span class="tag">Hours</span><p style="font-weight:700">Open 24 hours, 7 days a week</p><p class="muted">Including holidays and September 1st.</p></div>
-      <div class="panel"><span class="tag">Service area</span><p style="font-weight:700">343 Massachusetts cities &amp; towns (all but the islands)</p><a href="#areas">See the full list</a></div>
+      <div class="panel"><span class="tag">Service area</span><p style="font-weight:700">343 Massachusetts cities &amp; towns (all but the islands)</p><a href="/service-area">See the full list</a></div>
     </div>
     <aside class="side"><div class="panel"><h3>Ready for a price?</h3><p class="muted">The quote form takes about a minute.</p><a class="btn" href="#quote">Get a free quote</a></div></aside>
   </div></section>
@@ -1242,7 +1242,7 @@ a.tel,a.mail{padding-block:8px}
 <div data-page="referral" hidden>
   <section class="quilt"><div class="wrap ref-hero">
     <div>
-      <span class="crumb"><a href="#home">Home</a> / <a href="#faq">Resources</a> / Referral program</span>
+      <span class="crumb"><a href="#home">Home</a> / <a href="/faq">Resources</a> / Referral program</span>
       <span class="tag" style="color:var(--tape)">Referral program <b style="color:#fff">· for partners</b></span>
       <h1 style="margin-top:16px">Send us your clients. <mark>Earn</mark> on every booked move.</h1>
       <p class="lead">When your clients need movers they can trust, MJ Moving Company does the job well. That reflects on you, and you earn a reward for every referral that books.</p>
@@ -1369,7 +1369,7 @@ a.tel,a.mail{padding-block:8px}
     </div>
     <div class="legal">
       <span>© <span id="yr"></span> MJ Moving Company. All rights reserved.</span>
-      <span><a href="#privacy">Privacy</a> · <a href="#terms">Terms</a> · <a href="#faq">FAQ</a> · <a href="#contact">Contact</a></span>
+      <span><a href="#privacy">Privacy</a> · <a href="#terms">Terms</a> · <a href="/faq">FAQ</a> · <a href="/contact">Contact</a></span>
     </div>
   </div>
 </footer>
@@ -1438,18 +1438,21 @@ const FAQ = [
 ];
 
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+const SVC_PATH = {moving:'local-moving',packing:'packing-and-unpacking','junk-removal':'junk-removal',storage:'storage','tv-mounting':'tv-mounting',supplies:'moving-supplies'};
+const svcHref = k => '/services/'+SVC_PATH[k];
+const regionHref = r => '/service-area/'+slug(r.name).replace(/^-|-$/g,'');
 const ALL_TOWNS = REGIONS.flatMap(r => r.towns.map(t => ({name:t, slug:slug(t), region:r})));
 const $ = s => document.querySelector(s);
 
-function svcCard(key){const s=SERVICES[key];return `<a class="svc label" href="#${key}"><span class="lbl">
+function svcCard(key){const s=SERVICES[key];return `<a class="svc label" href="${svcHref(key)}"><span class="lbl">
   <span class="lbl-top"><span>Handle with care</span><span class="up" aria-hidden="true">↑↑</span></span>
   <span class="lbl-row"><span class="ico">${ICON[s.icon]}</span><span><small>Contents</small><h3>${s.title}</h3></span></span>
   <p>${s.short}</p>
   <span class="lbl-foot"><span class="barcode" aria-hidden="true"></span><span class="more">See service →</span></span></span></a>`}
 $('#svcGrid').innerHTML = $('#svcGrid2').innerHTML = Object.keys(SERVICES).map(svcCard).join('');
-$('#footSvc').innerHTML = Object.keys(SERVICES).map(k=>`<li><a href="#${k}">${SERVICES[k].title}</a></li>`).join('');
+$('#footSvc').innerHTML = Object.keys(SERVICES).map(k=>`<li><a href="${svcHref(k)}">${SERVICES[k].title}</a></li>`).join('');
 const popular=['Boston','Cambridge','Somerville','Brookline','Newton','Quincy','Waltham','Medford'];
-$('#footAreas').innerHTML = popular.map(t=>`<li><a href="#town-${slug(t)}">${t}</a></li>`).join('')+'<li><a href="#areas">All towns →</a></li>';
+$('#footAreas').innerHTML = popular.map(t=>`<li><a href="${regionHref(ALL_TOWNS.find(x=>x.name===t).region)}">${t}</a></li>`).join('')+'<li><a href="/service-area">All towns →</a></li>';
 (function buildMap(){
   const svg=$('#amap'); if(!svg) return;
   const tabs=$('#amapTabs'), panel=$('#amapPanel'), hl=$('#hoverLbl');
@@ -1717,7 +1720,7 @@ function renderService(key){
   const others=Object.keys(SERVICES).filter(k=>k!==key);
   $('#servicePage').innerHTML=`
   <section class="page-head quilt"><div class="wrap">
-    <span class="crumb"><a href="#home">Home</a> / <a href="#services">Services</a> / ${s.title}</span>
+    <span class="crumb"><a href="#home">Home</a> / <a href="/services">Services</a> / ${s.title}</span>
     <h1>${s.title}</h1><p class="lead">${s.lead}</p>
     <p><a class="btn" href="#quote">Get a free quote</a></p>
   </div></section>
@@ -1730,7 +1733,7 @@ function renderService(key){
     <aside class="side">
       <div class="panel"><h3>Good fit for</h3><ul class="ticks">${s.good.map(i=>`<li>${i}</li>`).join('')}</ul></div>
       <div class="panel"><h3>Call any hour</h3><p class="phone" style="font-size:1.15rem"><a class="tel" href="tel:+15082156322">508-215-6322</a></p><a class="btn" href="#quote">Free quote</a></div>
-      <div class="panel"><h3>Other services</h3><ul class="ticks">${others.map(k=>`<li><a href="#${k}">${SERVICES[k].title}</a></li>`).join('')}</ul></div>
+      <div class="panel"><h3>Other services</h3><ul class="ticks">${others.map(k=>`<li><a href="${svcHref(k)}">${SERVICES[k].title}</a></li>`).join('')}</ul></div>
     </aside>
   </div></section>`;
 }
@@ -1739,7 +1742,7 @@ function renderTown(sl){
   const near=t.region.towns.filter(n=>n!==t.name).slice(0,8);
   $('#townPage').innerHTML=`
   <section class="page-head quilt"><div class="wrap">
-    <span class="crumb"><a href="#home">Home</a> / <a href="#areas">Service area</a> / ${t.name}</span>
+    <span class="crumb"><a href="#home">Home</a> / <a href="/service-area">Service area</a> / ${t.name}</span>
     <h1>Movers in ${t.name}, MA</h1>
     <p class="lead">Moving, packing, junk removal, storage and TV mounting in ${t.name}. Call or text <a class="tel" href="tel:+15082156322">508-215-6322</a>, any hour.</p>
     <p><a class="btn" href="#quote">Get a free ${t.name} quote</a></p>
@@ -1751,7 +1754,7 @@ function renderTown(sl){
       <div class="prose"><h2>Services in ${t.name}</h2><div class="svc-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${Object.keys(SERVICES).map(svcCard).join('')}</div></div>
     </div>
     <aside class="side">
-      <div class="panel"><h3>Nearby towns we serve</h3><div class="area-strip">${near.map(n=>`<a href="#town-${slug(n)}">${n}</a>`).join('')}</div><a href="#areas">All 343 towns →</a></div>
+      <div class="panel"><h3>Nearby towns we serve</h3><div class="area-strip">${near.map(n=>`<a href="#town-${slug(n)}">${n}</a>`).join('')}</div><a href="/service-area">All 343 towns →</a></div>
       <div class="panel"><h3>Open 24/7</h3><p class="phone" style="font-size:1.15rem"><a class="tel" href="tel:+15082156322">508-215-6322</a></p><a class="btn" href="#quote">Free quote</a></div>
     </aside>
   </div></section>`;
@@ -1887,8 +1890,13 @@ try{ const rc=new URLSearchParams(location.search).get('ref'); if(rc && /^[A-Za-
 
 /* router */
 const pages=[...document.querySelectorAll('[data-page]')];
+/* pages that now have their own web addresses: old # links forward to them */
+const MOVED={services:'/services',areas:'/service-area',about:'/about',faq:'/faq',contact:'/contact'};
+Object.keys(SERVICES).forEach(k=>MOVED[k]=svcHref(k));
 function route(){
   let h=location.hash.slice(1)||'home', page=h, nav=h;
+  if(MOVED[h]){ location.replace(MOVED[h]); return; }
+  if(h.startsWith('town-')){ const t=ALL_TOWNS.find(x=>x.slug===h.slice(5)); location.replace(t?regionHref(t.region):'/service-area'); return; }
   if(h.startsWith('town-')){ page = renderTown(h.slice(5)) ? 'town':'areas'; nav='areas'; }
   else if(SERVICES[h]){ renderService(h); page='service'; nav='services'; }
   else if(!pages.some(p=>p.dataset.page===h)){ page='home'; }
