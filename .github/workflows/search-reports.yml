@@ -1,0 +1,33 @@
+name: Search Console reports
+# Reports go to one address only (REPORT_TO_EMAIL secret).
+on:
+  schedule:
+    - cron: '7 12 * * 1'    # weekly indexing report, Mondays (UTC)
+    - cron: '27 12 2 * *'   # monthly performance report, 2nd of the month (UTC)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'indexed or performance'
+        default: 'indexed'
+permissions:
+  contents: read
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run report
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          REPORT_TO_EMAIL: ${{ secrets.REPORT_TO_EMAIL }}
+          REPORT_FROM_EMAIL: ${{ secrets.REPORT_FROM_EMAIL }}
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          if [ -z "$MODE" ]; then
+            if [ "${{ github.event.schedule }}" = "27 12 2 * *" ]; then MODE=performance; else MODE=indexed; fi
+          fi
+          node scripts/search-console-report.mjs "$MODE"
