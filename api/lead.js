@@ -165,7 +165,8 @@ export function niceDate(v) {
 }
 
 // Customer emails come from Mike personally. Replies go to his inbox (LEAD_TO_EMAIL).
-const CUSTOMER_FROM = () => process.env.CUSTOMER_FROM_EMAIL || 'Mike Bourque <mike@mjmovingco.com>';
+// Outside production the sender defaults to LEAD_FROM_EMAIL, because a preview's email key may not be allowed to send from the live domain.
+const CUSTOMER_FROM = () => process.env.CUSTOMER_FROM_EMAIL || (isProd() ? 'Mike Bourque <mike@mjmovingco.com>' : process.env.LEAD_FROM_EMAIL);
 
 export function customerEmail(l) {
   const phone = process.env.BUSINESS_PHONE_DISPLAY || '508-215-6322';
@@ -380,6 +381,9 @@ export default async function handler(req, res) {
     } catch (e) {
       delivered.customerEmail = false;
       console.error('customer_email_failed', ref, e.message);
+      // The owner has the lead, but the customer got no confirmation. Record it and tell Tim, so it is not invisible.
+      if (saved) { try { await updateLead(ref, { last_error: ('customer confirmation failed: ' + e.message).slice(0, 300) }); } catch (_) {} }
+      await alertTim(`Customer confirmation failed on ${SITE()} (${where})`, [`Reference ${ref}: the owner was emailed, but the confirmation email to the customer failed.`, `Reason: ${String(e.message).slice(0, 200)}`]);
     }
   }
   return res.status(200).json({ ok: true, ref, delivered });
