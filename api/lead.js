@@ -8,7 +8,7 @@
 // Optional: SEND_CUSTOMER_EMAIL=false turns off the customer confirmation email.
 //
 // Lead Safety Net (step 1):
-//   1. Every valid request is SAVED first (Supabase table "leads"), then emailed.   SUPABASE_URL, SUPABASE_SERVICE_KEY
+//   1. Every valid request is SAVED first (Supabase table "client_leads"), then emailed.   SUPABASE_URL, SUPABASE_SERVICE_KEY
 //   2. The email to the owner is tried up to 3 times.
 //   3. If it still fails, the lead stays saved and Tim is alerted (no lead details in the alert).
 //      ALERT_EMAIL (+ ALERT_FROM_EMAIL, optional), ALERT_PUSHOVER_TOKEN, ALERT_PUSHOVER_USER
@@ -234,8 +234,8 @@ export function leadRow(lead, ref, status, extra = {}) {
     ...extra,
   };
 }
-const saveLead = (row) => sb('POST', 'leads', row);
-const updateLead = (ref, patch) => sb('PATCH', `leads?ref_code=eq.${encodeURIComponent(ref)}`, { ...patch, updated_at: new Date().toISOString() });
+const saveLead = (row) => sb('POST', 'client_leads', row);
+const updateLead = (ref, patch) => sb('PATCH', `client_leads?ref_code=eq.${encodeURIComponent(ref)}`, { ...patch, updated_at: new Date().toISOString() });
 
 // ---- Failure alert to Tim. Never contains the visitor's name, phone, email or answers. ----
 export async function alertTim(subject, lines, env = process.env) {
@@ -351,7 +351,7 @@ export default async function handler(req, res) {
     console.error('lead_not_delivered', ref, { saved, mode: where });
     await alertTim(`Lead waiting on ${SITE()} (${where})`, [
       `Reference ${ref} was ${saved ? 'SAVED but not emailed to the owner' : 'NOT SAVED and NOT emailed (no copy exists except the visitor’s own browser)'}.`,
-      saved ? `Open the "leads" table in Supabase and find ref_code ${ref}.` : 'Check the Vercel logs for this site, then call the owner.',
+      saved ? `Open the "client_leads" table in Supabase and find ref_code ${ref}.` : 'Check the Vercel logs for this site, then call the owner.',
       `Reason: ${lastError || 'no delivery channel is configured'}`,
     ]);
     if (!saved) return res.status(store ? 502 : 503).json({ ok: false, error: store ? 'delivery_failed' : 'not_configured' });
