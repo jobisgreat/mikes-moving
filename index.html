@@ -1130,7 +1130,7 @@ a.tel,a.mail{padding-block:8px}
         <div class="field"><label for="c_desc">Describe the problem</label><textarea id="c_desc" required placeholder="When did you notice it? Which room or box? Anything the crew said at the time?"></textarea></div>
         <div class="field"><label for="c_photos">Photos</label><input id="c_photos" type="file" accept="image/*" multiple><span class="files" id="fileList">No photos added yet</span></div>
       </fieldset>
-      <div class="hp" aria-hidden="true"><label for="c_company">Company</label><input id="c_company" tabindex="-1" autocomplete="off"></div>
+      <div class="hp" aria-hidden="true"><label for="c_hp">Leave this empty</label><input id="c_hp" name="hp_note" tabindex="-1" autocomplete="off"></div>
       <label class="check"><input type="checkbox" id="c_ok" required> The information above is accurate to the best of my knowledge.</label>
       <div class="form-row">
         <span class="note">Preview build: submissions aren't sent yet. To file today, call <a class="tel" href="tel:+15082156322">508-215-6322</a>.</span>
@@ -1294,7 +1294,7 @@ a.tel,a.mail{padding-block:8px}
     <div>
       <div class="sec-head"><span class="tag">Join <b>· 1 minute</b></span><h2>Join the referral program</h2><p class="lead">We’ll call you to set up your account and give you your referral code.</p></div>
       <form id="refForm" class="card-form" novalidate>
-        <div class="hp" aria-hidden="true"><label for="r_company2">Company</label><input id="r_company2" tabindex="-1" autocomplete="off"></div>
+        <div class="hp" aria-hidden="true"><label for="r_hp">Leave this empty</label><input id="r_hp" name="hp_note" tabindex="-1" autocomplete="off"></div>
         <div class="grid2">
           <div class="field"><label for="r_name">Full name</label><input id="r_name" autocomplete="name" required></div>
           <div class="field"><label for="r_company">Company or brokerage</label><input id="r_company" autocomplete="organization"></div>
@@ -1509,7 +1509,7 @@ function quoteForm(p){
   <h2>Get a Free Estimate</h2>
   <p class="qmeta">Open 24/7 · Call or text <b><a class="tel" href="tel:+15082156322">508-215-6322</a></b></p>
   <div class="qprog"><span data-steplabel>Step 1 of 2</span><div class="qbar"><i data-bar style="width:50%">50%</i></div></div>
-  <div class="hp" aria-hidden="true"><label for="${p}_company">Company</label><input id="${p}_company" name="company" tabindex="-1" autocomplete="off"></div>
+  <div class="hp" aria-hidden="true"><label for="${p}_hp">Leave this empty</label><input id="${p}_hp" name="hp_note" tabindex="-1" autocomplete="off"></div>
   <div class="qfields" data-step="1">
     <div class="qf"><label class="sr" for="${p}_name">Full name</label><input id="${p}_name" placeholder="Full Name" autocomplete="name"></div>
     <div class="qf"><label class="sr" for="${p}_phone">Phone</label><input id="${p}_phone" type="tel" placeholder="Phone" autocomplete="tel" inputmode="tel"></div>
@@ -1636,7 +1636,7 @@ function wireQuote(host,p){
     if(!LIVE){ done(); return; }
     const btn=f.querySelector('[data-next]'); btn.disabled=true; btn.textContent='Sending…';
     let ref=''; try{ ref=sessionStorage.getItem('mmc_ref')||''; }catch(_){}
-    sendLead({kind:'quote',...data,ref,company:q('company').value,elapsed:Date.now()-t0})
+    sendLead({kind:'quote',...data,ref,hp:q('hp').value,elapsed:Date.now()-t0})
       .then(ok=>{ if(ok){ done(); } else { err.innerHTML='We couldn’t send your request online. Please call or text <a class="tel" href="tel:+15082156322">508-215-6322</a>. We answer 24/7.'; err.hidden=false; } })
       .finally(()=>{ btn.disabled=false; btn.textContent=step===1?'Next':'Get Free Quote'; });
   });
@@ -1696,7 +1696,7 @@ $('#claimForm').addEventListener('submit',e=>{
   if(!LIVE){ finish(); return; }
   const items=[...document.querySelectorAll('#items .item-row')].map(r=>{const v=r.querySelectorAll('input');return {item:v[0].value,issue:v[1].value,value:v[2].value};});
   const payload={kind:'claim',claimType:(document.querySelector('input[name="ctype"]:checked')||{}).value||'damage',name:$('#c_name').value,phone:$('#c_phone').value,email:$('#c_email').value,
-    job:$('#c_job').value,date:$('#c_date').value,address:$('#c_to').value,description:$('#c_desc').value,items:$('#ct3').checked?[]:items,photoCount:$('#c_photos').files.length,company:$('#c_company').value,elapsed:Date.now()-claimT0};
+    job:$('#c_job').value,date:$('#c_date').value,address:$('#c_to').value,description:$('#c_desc').value,items:$('#ct3').checked?[]:items,photoCount:$('#c_photos').files.length,hp:$('#c_hp').value,elapsed:Date.now()-claimT0};
   const btn=e.target.querySelector('button[type="submit"]'); btn.disabled=true; btn.textContent='Sending…';
   sendLead(payload).then(ok=>{ if(ok) finish(); else { er.innerHTML='We couldn’t send your claim online. Please call or text <a class="tel" href="tel:+15082156322">508-215-6322</a>, or email <a class="mail" href="mailto:mike@mjmovingco.com">mike@mjmovingco.com</a>.'; er.hidden=false; } })
     .finally(()=>{ btn.disabled=false; btn.textContent='Submit claim'; });
@@ -1874,7 +1874,7 @@ $('#svcGrid3').innerHTML=Object.keys(SERVICES).map(svcCard).join('');
     const bad=checks.find(([id,ok])=>!ok($('#'+id).value));
     if(bad){ err.textContent=bad[2]; err.hidden=false; $('#'+bad[0]).focus(); return; }
     if(!$('#r_ok').checked){ err.textContent='Please check the box so we can contact you about the program.'; err.hidden=false; $('#r_ok').focus(); return; }
-    const data={kind:'partner',name:$('#r_name').value,company2:$('#r_company').value,phone:$('#r_phone').value,email:$('#r_email').value,role:$('#r_role').value,towns:$('#r_towns').value,notes:$('#r_notes').value,code:codeOf($('#r_name').value),company:$('#r_company2').value,elapsed:Date.now()-t0};
+    const data={kind:'partner',name:$('#r_name').value,company2:$('#r_company').value,phone:$('#r_phone').value,email:$('#r_email').value,role:$('#r_role').value,towns:$('#r_towns').value,notes:$('#r_notes').value,code:codeOf($('#r_name').value),hp:$('#r_hp').value,elapsed:Date.now()-t0};
     const finish=()=>{ f.hidden=true; $('#refDone').hidden=false;
       $('#refDoneText').textContent = LIVE ? `We’ll call you at ${data.phone} to set up your account and confirm your code (${data.code}). A confirmation is on its way to ${data.email.trim()}.` : `Preview build: this request was not sent. On the live site it goes straight to Mike, and we call you to set up your code (${data.code}).`;
       $('#refJoin').scrollIntoView({block:'start'}); };

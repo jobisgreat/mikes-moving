@@ -219,7 +219,8 @@ export default async function handler(req, res) {
   body = body || {};
 
   // Spam guards: a hidden field real people never fill, and a minimum time on the form.
-  if (body.company || (Number(body.elapsed) > 0 && Number(body.elapsed) < 2500)) {
+  if (body.hp || (Number(body.elapsed) > 0 && Number(body.elapsed) < 2500)) {
+    console.error('lead_dropped_as_spam', body.hp ? 'trap field filled' : 'sent too fast');
     return res.status(200).json({ ok: true });
   }
 
