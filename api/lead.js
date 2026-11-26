@@ -34,6 +34,11 @@ const previewTo = (env = process.env) => (env.PREVIEW_LEAD_TO_EMAIL || '').trim(
 // Where the owner email goes. Production: LEAD_TO_EMAIL. Anything else: only the preview address, or nowhere.
 export const ownerTo = (env = process.env) => (isProd(env) ? env.LEAD_TO_EMAIL : previewTo(env));
 
+// Shape checks for settings, so the health page can say "looks valid" without ever showing the value.
+const ADDR = '[^\\s@<>()]+@[^\\s@<>()]+\\.[^\\s@<>()]+';
+export const validFrom = (v) => new RegExp(`^(?:[^<>]+<${ADDR}>|${ADDR})$`).test(String(v || '').trim());
+export const validAddr = (v) => new RegExp(`^${ADDR}$`).test(String(v || '').trim());
+
 // Reference code the visitor sees: L- plus 6 characters with no look-alikes (no 0/O, 1/I).
 export function makeRef() {
   const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -291,7 +296,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method === 'GET') {
     // Health check: shows which channels are switched on, never any secrets.
-    return res.status(200).json({ ok: true, mode: isProd() ? 'production' : 'preview', store: storeOn(), alert: !!(process.env.ALERT_EMAIL || process.env.ALERT_PUSHOVER_TOKEN), channels: channels() });
+    return res.status(200).json({ ok: true, mode: isProd() ? 'production' : 'preview', store: storeOn(), settings_look_valid: { from: validFrom(process.env.LEAD_FROM_EMAIL), owner_to: validAddr(ownerTo()), alert_to: validAddr(process.env.ALERT_EMAIL) }, alert: !!(process.env.ALERT_EMAIL || process.env.ALERT_PUSHOVER_TOKEN), channels: channels() });
   }
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'method_not_allowed' });
 
