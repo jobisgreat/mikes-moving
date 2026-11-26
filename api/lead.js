@@ -313,8 +313,12 @@ export default async function handler(req, res) {
 
   // Spam guards: a hidden field real people never fill, and a minimum time on the form.
   // Suspects are SAVED as "held" (never emailed, never silently deleted). The visitor sees the normal thank-you.
-  if (body.company || (Number(body.elapsed) > 0 && Number(body.elapsed) < 2500)) {
-    if (store) { try { await saveLead(leadRow(lead, ref, 'held', { ...extra, last_error: body.company ? 'trap field filled' : 'sent too fast' })); } catch (e) { console.error('held_save_failed', e.message); } }
+  if (body.hp || (Number(body.elapsed) > 0 && Number(body.elapsed) < 2500)) {
+    if (store) { try { await saveLead(leadRow(lead, ref, 'held', { ...extra, last_error: body.hp ? 'trap field filled' : 'sent too fast' })); } catch (e) { console.error('held_save_failed', e.message); } }
+    // Until the daily review exists (a later step), tell Tim a lead was held so a real person is never lost silently. No lead details in the alert.
+    if (process.env.HELD_ALERT !== 'false') {
+      await alertTim(`Lead held as possible spam on ${SITE()} (${isProd() ? 'production' : 'preview'})`, [`Reference ${ref} was saved but NOT emailed to the owner (${body.hp ? 'hidden trap field was filled' : 'sent too fast'}).`, store ? `Open the "client_leads" table in Supabase and look at ref_code ${ref}. If it is a real person, call them.` : 'Saving is off, so this lead was not kept.']);
+    }
     return res.status(200).json({ ok: true, ref });
   }
 
