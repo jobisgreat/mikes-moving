@@ -1484,10 +1484,13 @@ $('#yr').textContent = new Date().getFullYear();
 
 /* lead delivery: the live site posts to /api/lead; this preview never sends */
 const LIVE = window.MMC_LIVE === true;
+/* reference code from the server, shown on the thank-you; "queued" means saved but the owner email is being retried */
+const refNote=()=>{ if(!window.mmcRef) return ''; return ` Your reference is <b>${esc(window.mmcRef)}</b>.`+(window.mmcQueued?' If it is urgent, call or text <a class="tel" href="tel:+15082156322">508-215-6322</a>.':''); };
 async function sendLead(payload){
   try{
     const r=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const j=await r.json().catch(()=>({}));
+    window.mmcRef=(r.ok&&j.ok===true&&j.ref)?String(j.ref):''; window.mmcQueued=!!j.queued;
     return r.ok && j.ok===true;
   }catch(_){ return false; }
 }
@@ -1632,7 +1635,7 @@ function wireQuote(host,p){
     if(step===1){ show(2); q('from').focus(); return; }
     const data={name:q('name').value.trim(),phone:q('phone').value,email:q('email').value.trim(),date:q('date').value,
       from:q('from').value,to:q('to').value,size:q('size').value,heard:q('heard').value,mkt:q('mkt').checked,svc:q('svc').checked};
-    const done=()=>{ lastQuote=data; f.reset(); cal.reset(); show(1); t0=Date.now(); location.hash='thank-you'; };
+    const done=()=>{ lastQuote={...data,ref:window.mmcRef||'',queued:window.mmcQueued}; f.reset(); cal.reset(); show(1); t0=Date.now(); location.hash='thank-you'; };
     if(!LIVE){ done(); return; }
     const btn=f.querySelector('[data-next]'); btn.disabled=true; btn.textContent='Sending…';
     let ref=''; try{ ref=sessionStorage.getItem('mmc_ref')||''; }catch(_){}
@@ -1670,7 +1673,7 @@ function renderThankYou(){
     <dt>Move date</dt><dd>${esc(r.date)}</dd><dt>Route</dt><dd>${esc(r.from)} → ${esc(r.to)}</dd>
     <dt>Move size</dt><dd>${esc(r.size)}</dd><dt>Found us</dt><dd>${esc(r.heard)}</dd>
     <dt>Service texts</dt><dd>${yes(r.svc)}</dd><dt>Offer texts</dt><dd>${yes(r.mkt)}</dd></dl>
-    ${LIVE?`<p class="preview-note">Sent to Mike. A confirmation is on its way to ${esc(r.email)}. Check your spam folder if you don’t see it.</p>`:`<p class="preview-note">Preview build: this request was not sent. On the live site it goes straight to Mike's phone and inbox.</p>`}`;
+    ${LIVE?`<p class="preview-note">Sent to Mike. A confirmation is on its way to ${esc(r.email)}. Check your spam folder if you don’t see it.${r.ref?` Your reference is <b>${esc(r.ref)}</b>.`+(r.queued?' If it is urgent, call or text <a class="tel" href="tel:+15082156322">508-215-6322</a>.':''):''}</p>`:`<p class="preview-note">Preview build: this request was not sent. On the live site it goes straight to Mike's phone and inbox.</p>`}`;
 }
 
 /* claim form */
@@ -1692,7 +1695,7 @@ $('#claimForm').addEventListener('submit',e=>{
   e.preventDefault();const bad=[...e.target.querySelectorAll('[required]')].find(x=>!x.checkValidity());
   const er=$('#claimErr');
   if(bad){er.textContent=bad.id==='c_ok'?'Please confirm the information is accurate.':'Please fill in '+document.querySelector(`label[for="${bad.id}"]`).textContent.toLowerCase()+'.';er.hidden=false;bad.focus();return}
-  const finish=()=>{ e.target.hidden=true;$('#claimDone').hidden=false;window.scrollTo(0,0); };
+  const finish=()=>{ e.target.hidden=true;const d=$('#claimDone');d.hidden=false;d.querySelectorAll('.rl').forEach(x=>x.remove());const p=d.querySelector('p');if(p&&refNote())p.insertAdjacentHTML('beforeend','<span class="rl">'+refNote()+'</span>');window.scrollTo(0,0); };
   if(!LIVE){ finish(); return; }
   const items=[...document.querySelectorAll('#items .item-row')].map(r=>{const v=r.querySelectorAll('input');return {item:v[0].value,issue:v[1].value,value:v[2].value};});
   const payload={kind:'claim',claimType:(document.querySelector('input[name="ctype"]:checked')||{}).value||'damage',name:$('#c_name').value,phone:$('#c_phone').value,email:$('#c_email').value,
@@ -1877,7 +1880,7 @@ $('#svcGrid3').innerHTML=Object.keys(SERVICES).map(svcCard).join('');
     const data={kind:'partner',name:$('#r_name').value,company2:$('#r_company').value,phone:$('#r_phone').value,email:$('#r_email').value,role:$('#r_role').value,towns:$('#r_towns').value,notes:$('#r_notes').value,code:codeOf($('#r_name').value),company:$('#r_company2').value,elapsed:Date.now()-t0};
     const finish=()=>{ f.hidden=true; $('#refDone').hidden=false;
       $('#refDoneText').textContent = LIVE ? `We’ll call you at ${data.phone} to set up your account and confirm your code (${data.code}). A confirmation is on its way to ${data.email.trim()}.` : `Preview build: this request was not sent. On the live site it goes straight to Mike, and we call you to set up your code (${data.code}).`;
-      $('#refJoin').scrollIntoView({block:'start'}); };
+      if(LIVE&&refNote()) $('#refDoneText').insertAdjacentHTML('beforeend',refNote()); $('#refJoin').scrollIntoView({block:'start'}); };
     if(!LIVE){ finish(); return; }
     const b=f.querySelector('button[type="submit"]'); b.disabled=true; b.textContent='Sending…';
     sendLead(data).then(ok=>{ if(ok) finish(); else { err.innerHTML='We couldn’t send your request online. Please call or text <a class="tel" href="tel:+15082156322">508-215-6322</a>.'; err.hidden=false; } })
