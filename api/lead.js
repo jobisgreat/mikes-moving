@@ -6,6 +6,17 @@
 //   Text message to Mike                   -> Twilio      TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM (or TWILIO_MESSAGING_SERVICE_SID), LEAD_TO_PHONE
 //   Instant phone push to Mike (optional)  -> Pushover    PUSHOVER_TOKEN, PUSHOVER_USER
 // Optional: SEND_CUSTOMER_EMAIL=false turns off the customer confirmation email.
+//
+// Lead Safety Net (step 1):
+//   1. Every valid request is SAVED first (Supabase table "client_leads"), then emailed.   SUPABASE_URL, SUPABASE_SERVICE_KEY
+//   2. The email to the owner is tried up to 3 times.
+//   3. If it still fails, the lead stays saved and Tim is alerted (no lead details in the alert).
+//      ALERT_EMAIL (+ ALERT_FROM_EMAIL, optional), ALERT_PUSHOVER_TOKEN, ALERT_PUSHOVER_USER
+//   4. The visitor gets a reference code (L-XXXXXX).
+//   5. Suspected spam is saved as "held" and is never emailed or silently deleted.
+// Safety: anywhere except Vercel production, nothing goes to the owner or to customers. Owner email goes
+//   only to PREVIEW_LEAD_TO_EMAIL (if unset, no email at all), the customer confirmation goes only if the
+//   customer's address equals PREVIEW_LEAD_TO_EMAIL, and text/push to the owner are off.
 
 const MAX = { name: 80, phone: 20, email: 120, text: 2000, short: 120 };
 
@@ -15,6 +26,26 @@ const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 const fmtPhone = (d) => (d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : d);
 const yes = (b) => (b ? 'Yes' : 'No');
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const SITE = () => process.env.SITE_SLUG || 'mj-moving';
+const isProd = (env = process.env) => env.VERCEL_ENV === 'production';
+const previewTo = (env = process.env) => (env.PREVIEW_LEAD_TO_EMAIL || '').trim();
+// Where the owner email goes. Production: LEAD_TO_EMAIL. Anything else: only the preview address, or nowhere.
+export const ownerTo = (env = process.env) => (isProd(env) ? env.LEAD_TO_EMAIL : previewTo(env));
+
+// Shape checks for settings, so the health page can say "looks valid" without ever showing the value.
+const ADDR = '[^\\s@<>()]+@[^\\s@<>()]+\\.[^\\s@<>()]+';
+export const validFrom = (v) => new RegExp(`^(?:[^<>]+<${ADDR}>|${ADDR})$`).test(String(v || '').trim());
+export const validAddr = (v) => new RegExp(`^${ADDR}$`).test(String(v || '').trim());
+
+// Reference code the visitor sees: L- plus 6 characters with no look-alikes (no 0/O, 1/I).
+export function makeRef() {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const b = new Uint8Array(6);
+  globalThis.crypto.getRandomValues(b);
+  return 'L-' + Array.from(b, (x) => A[x % A.length]).join('');
+}
 
 export function validate(body) {
   const kind = ['claim', 'partner'].includes(body.kind) ? body.kind : 'quote';
@@ -134,7 +165,8 @@ export function niceDate(v) {
 }
 
 // Customer emails come from Mike personally. Replies go to his inbox (LEAD_TO_EMAIL).
-const CUSTOMER_FROM = () => process.env.CUSTOMER_FROM_EMAIL || 'Mike Bourque <mike@mjmovingco.com>';
+// Outside production the sender defaults to LEAD_FROM_EMAIL, because a preview's email key may not be allowed to send from the live domain.
+const CUSTOMER_FROM = () => process.env.CUSTOMER_FROM_EMAIL || (isProd() ? 'Mike Bourque <mike@mjmovingco.com>' : process.env.LEAD_FROM_EMAIL);
 
 export function customerEmail(l) {
   const phone = process.env.BUSINESS_PHONE_DISPLAY || '508-215-6322';
@@ -174,6 +206,60 @@ async function sendResend({ to, subject, html, text, replyTo, from }) {
     body: JSON.stringify({ from: from || process.env.LEAD_FROM_EMAIL, to: [to], subject, html, text, reply_to: replyTo }),
   });
   if (!r.ok) throw new Error(`resend ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  const j = await r.json().catch(() => ({}));
+  return j.id || null;
+}
+
+// Try up to 3 times, with short pauses. Returns { id, attempts } or throws the last error.
+export async function withRetry(fn, delays = [400, 1200]) {
+  let last;
+  for (let i = 0; i <= delays.length; i++) {
+    try { return { value: await fn(), attempts: i + 1 }; } catch (e) { last = e; if (i < delays.length) await sleep(delays[i]); }
+  }
+  last.attempts = delays.length + 1;
+  throw last;
+}
+
+// ---- Saving leads (Supabase REST, no packages). The service key never leaves the server. ----
+export const storeOn = (env = process.env) => !!(env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY);
+async function sb(method, path, body, env = process.env) {
+  const r = await fetch(`${env.SUPABASE_URL.replace(/\/$/, '')}/rest/v1/${path}`, {
+    method,
+    headers: { apikey: env.SUPABASE_SERVICE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!r.ok) throw new Error(`supabase ${r.status}: ${(await r.text()).slice(0, 200)}`);
+}
+export function leadRow(lead, ref, status, extra = {}) {
+  const { name, phone, email, kind, smsService, smsMarketing, ...rest } = lead;
+  return {
+    ref_code: ref, site: SITE(), env: isProd() ? 'production' : 'preview', kind, status,
+    name, phone, email,
+    answers: rest,
+    consent: kind === 'quote' ? { sms_service: !!smsService, sms_marketing: !!smsMarketing, form_version: 'mj-quote-v1' } : {},
+    ...extra,
+  };
+}
+const saveLead = (row) => sb('POST', 'client_leads', row);
+const updateLead = (ref, patch) => sb('PATCH', `client_leads?ref_code=eq.${encodeURIComponent(ref)}`, { ...patch, updated_at: new Date().toISOString() });
+
+// ---- Failure alert to Tim. Never contains the visitor's name, phone, email or answers. ----
+export async function alertTim(subject, lines, env = process.env) {
+  const text = lines.join('\n');
+  const sent = [];
+  if (env.ALERT_EMAIL && env.RESEND_API_KEY && (env.ALERT_FROM_EMAIL || env.LEAD_FROM_EMAIL)) {
+    try { await sendResend({ to: env.ALERT_EMAIL, subject, html: `<pre style="font:14px Arial">${esc(text)}</pre>`, text, from: env.ALERT_FROM_EMAIL || env.LEAD_FROM_EMAIL }); sent.push('email'); } catch (e) { console.error('alert_email_failed', e.message); }
+  }
+  if (env.ALERT_PUSHOVER_TOKEN && env.ALERT_PUSHOVER_USER) {
+    try {
+      const r = await fetch('https://api.pushover.net/1/messages.json', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ token: env.ALERT_PUSHOVER_TOKEN, user: env.ALERT_PUSHOVER_USER, title: subject, message: text, priority: '1' }) });
+      if (!r.ok) throw new Error(`pushover ${r.status}`);
+      sent.push('push');
+    } catch (e) { console.error('alert_push_failed', e.message); }
+  }
+  if (!sent.length) console.error('alert_not_sent: no alert channel worked', subject);
+  return sent;
 }
 
 async function sendTwilio(body) {
@@ -199,10 +285,11 @@ async function sendPushover(title, message) {
 }
 
 export function channels(env = process.env) {
+  const prod = isProd(env);
   return {
-    email: !!(env.RESEND_API_KEY && env.LEAD_FROM_EMAIL && env.LEAD_TO_EMAIL),
-    sms: !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && (env.TWILIO_FROM || env.TWILIO_MESSAGING_SERVICE_SID) && env.LEAD_TO_PHONE),
-    push: !!(env.PUSHOVER_TOKEN && env.PUSHOVER_USER),
+    email: !!(env.RESEND_API_KEY && env.LEAD_FROM_EMAIL && ownerTo(env)),
+    sms: prod && !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && (env.TWILIO_FROM || env.TWILIO_MESSAGING_SERVICE_SID) && env.LEAD_TO_PHONE),
+    push: prod && !!(env.PUSHOVER_TOKEN && env.PUSHOVER_USER),
   };
 }
 
@@ -210,7 +297,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method === 'GET') {
     // Health check: shows which channels are switched on, never any secrets.
-    return res.status(200).json({ ok: true, channels: channels() });
+    return res.status(200).json({ ok: true, mode: isProd() ? 'production' : 'preview', store: storeOn(), settings_look_valid: { from: validFrom(process.env.LEAD_FROM_EMAIL), owner_to: validAddr(ownerTo()), alert_to: validAddr(process.env.ALERT_EMAIL) }, alert: !!(process.env.ALERT_EMAIL || process.env.ALERT_PUSHOVER_TOKEN), channels: channels() });
   }
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'method_not_allowed' });
 
@@ -218,48 +305,86 @@ export default async function handler(req, res) {
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
   body = body || {};
 
-  // Spam guards: a hidden field real people never fill, and a minimum time on the form.
-  if (body.company || (Number(body.elapsed) > 0 && Number(body.elapsed) < 2500)) {
-    return res.status(200).json({ ok: true });
-  }
-
   const { lead, errors } = validate(body);
   if (errors.length) return res.status(400).json({ ok: false, error: 'invalid', fields: errors });
 
-  const on = channels();
-  if (!on.email && !on.sms && !on.push) {
-    console.error('lead_not_delivered: no channels configured', { kind: lead.kind, name: lead.name, phone: lead.phone });
-    return res.status(503).json({ ok: false, error: 'not_configured' });
+  const ref = makeRef();
+  const store = storeOn();
+  const extra = { source_page: clean(req.headers?.referer, 300) };
+
+  // Spam guards: a hidden field real people never fill, and a minimum time on the form.
+  // Suspects are SAVED as "held" (never emailed, never silently deleted). The visitor sees the normal thank-you.
+  if (body.hp || (Number(body.elapsed) > 0 && Number(body.elapsed) < 2500)) {
+    if (store) { try { await saveLead(leadRow(lead, ref, 'held', { ...extra, last_error: body.hp ? 'trap field filled' : 'sent too fast' })); } catch (e) { console.error('held_save_failed', e.message); } }
+    // Until the daily review exists (a later step), tell Tim a lead was held so a real person is never lost silently. No lead details in the alert.
+    if (process.env.HELD_ALERT !== 'false') {
+      await alertTim(`Lead held as possible spam on ${SITE()} (${isProd() ? 'production' : 'preview'})`, [`Reference ${ref} was saved but NOT emailed to the owner (${body.hp ? 'hidden trap field was filled' : 'sent too fast'}).`, store ? `Open the "client_leads" table in Supabase and look at ref_code ${ref}. If it is a real person, call them.` : 'Saving is off, so this lead was not kept.']);
+    }
+    return res.status(200).json({ ok: true, ref });
   }
 
+  // 1. SAVE FIRST.
+  let saved = false;
+  if (store) {
+    try { await saveLead(leadRow(lead, ref, 'received', extra)); saved = true; } catch (e) { console.error('lead_save_failed', ref, e.message); }
+  }
+
+  const on = channels();
   const m = mikeEmail(lead);
   const tasks = [];
-  if (on.email) tasks.push(['email', sendResend({ to: process.env.LEAD_TO_EMAIL, subject: m.subject, html: m.html, text: m.text, replyTo: lead.email })]);
+  // 2. EMAIL THE OWNER (up to 3 tries).
+  if (on.email) tasks.push(['email', withRetry(() => sendResend({ to: ownerTo(), subject: m.subject, html: m.html, text: m.text, replyTo: lead.email }))]);
   if (on.sms) tasks.push(['sms', sendTwilio(mikeText(lead))]);
   if (on.push) tasks.push(['push', sendPushover(m.subject, mikeText(lead))]);
 
   const results = await Promise.allSettled(tasks.map((t) => t[1]));
   const delivered = {};
+  let emailId = null; let attempts = 0; let lastError = '';
   results.forEach((r, i) => {
-    delivered[tasks[i][0]] = r.status === 'fulfilled';
-    if (r.status === 'rejected') console.error(`lead_channel_failed:${tasks[i][0]}`, r.reason?.message);
+    const ch = tasks[i][0];
+    delivered[ch] = r.status === 'fulfilled';
+    if (r.status === 'fulfilled' && ch === 'email') { emailId = r.value.value; attempts = r.value.attempts; }
+    if (r.status === 'rejected') { lastError = String(r.reason?.message || r.reason).slice(0, 300); if (ch === 'email') attempts = r.reason?.attempts || 3; console.error(`lead_channel_failed:${ch}`, ref, lastError); }
   });
-  const reachedMike = Object.values(delivered).some(Boolean);
-  if (!reachedMike) {
-    console.error('lead_not_delivered: all channels failed', { kind: lead.kind, name: lead.name, phone: lead.phone });
-    return res.status(502).json({ ok: false, error: 'delivery_failed' });
+  const reachedOwner = Object.values(delivered).some(Boolean);
+
+  // 3. UPDATE THE SAVED ROW, 4. ALERT TIM IF THE OWNER WAS NOT REACHED.
+  const where = isProd() ? 'production' : 'preview';
+  if (reachedOwner) {
+    if (saved) { try { await updateLead(ref, { status: 'emailed', email_id: emailId, email_attempts: attempts }); } catch (e) { console.error('lead_update_failed', ref, e.message); } }
+    else if (store) {
+      // The owner got the lead, but saving is broken. Tell Tim so the safety net gets fixed before it matters.
+      await alertTim(`Lead saving is failing on ${SITE()} (${where})`, [`Reference ${ref} was emailed but NOT saved. The leads table is not accepting writes.`, 'Check Supabase (project may be paused or the key changed).']);
+    }
+  } else {
+    if (saved) { try { await updateLead(ref, { status: 'needs_attention', email_attempts: attempts, last_error: lastError || 'no channel configured' }); } catch (e) { console.error('lead_update_failed', ref, e.message); } }
+    console.error('lead_not_delivered', ref, { saved, mode: where });
+    await alertTim(`Lead waiting on ${SITE()} (${where})`, [
+      `Reference ${ref} was ${saved ? 'SAVED but not emailed to the owner' : 'NOT SAVED and NOT emailed (no copy exists except the visitor’s own browser)'}.`,
+      saved ? `Open the "client_leads" table in Supabase and find ref_code ${ref}.` : 'Check the Vercel logs for this site, then call the owner.',
+      `Reason: ${lastError || 'no delivery channel is configured'}`,
+    ]);
+    if (!saved) return res.status(store ? 502 : 503).json({ ok: false, error: store ? 'delivery_failed' : 'not_configured' });
+    // Saved, so the request is safe: tell the visitor it arrived, and show the phone number for anything urgent.
+    return res.status(200).json({ ok: true, ref, queued: true, delivered });
   }
 
   // Customer confirmation (best effort; never blocks the response's success).
-  if (on.email && process.env.SEND_CUSTOMER_EMAIL !== 'false') {
+  // Outside production it goes only to the preview address, so no real customer is ever emailed from a preview.
+  const confirmOk = isProd() || (previewTo() && lead.email === previewTo().toLowerCase());
+  if (on.email && confirmOk && process.env.SEND_CUSTOMER_EMAIL !== 'false') {
     const c = customerEmail(lead);
+    const text = `${c.text}\n\nYour reference: ${ref}`;
     try {
-      await sendResend({ from: CUSTOMER_FROM(), to: lead.email, subject: c.subject, text: c.text, html: brandedHtml(c.text), replyTo: process.env.LEAD_TO_EMAIL });
+      await sendResend({ from: CUSTOMER_FROM(), to: lead.email, subject: c.subject, text, html: brandedHtml(text), replyTo: ownerTo() });
       delivered.customerEmail = true;
     } catch (e) {
       delivered.customerEmail = false;
-      console.error('customer_email_failed', e.message);
+      console.error('customer_email_failed', ref, e.message);
+      // The owner has the lead, but the customer got no confirmation. Record it and tell Tim, so it is not invisible.
+      if (saved) { try { await updateLead(ref, { last_error: ('customer confirmation failed: ' + e.message).slice(0, 300) }); } catch (_) {} }
+      await alertTim(`Customer confirmation failed on ${SITE()} (${where})`, [`Reference ${ref}: the owner was emailed, but the confirmation email to the customer failed.`, `Reason: ${String(e.message).slice(0, 200)}`]);
     }
   }
-  return res.status(200).json({ ok: true, delivered });
+  return res.status(200).json({ ok: true, ref, delivered });
 }
